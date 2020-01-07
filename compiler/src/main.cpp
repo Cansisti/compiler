@@ -16,7 +16,11 @@ int main(int argc, char** argv) {
 	spdlog::set_level(spdlog::level::debug);
     spdlog::enable_backtrace(32);
 	program = new Program();
-	yyparse();
+	auto rc = yyparse();
+	if(rc != 0) {
+		spdlog::info("Aborting ({})", rc);
+		return rc;
+	}
 
 	spdlog::info("Declarations: {}", program->declarations.size());
 	for(auto declaration: program->declarations) {
