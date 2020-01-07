@@ -1,12 +1,18 @@
 %code requires{
 #include <variant>
-#include <string>
-#define YYSTYPE std::variant<long long, std::string>
+#include "any.h"
+#define YYSTYPE Any
 }
 
 %{
 #include "program.h"
 extern Program* program;
+Command* command;
+
+#include "declarations/variable.h"
+#include "declarations/table.h"
+
+#include "commands/assign.h"
 
 extern int yylex();
 extern void yyerror(const char*);
@@ -63,31 +69,39 @@ program: DECLARE declarations _BEGIN commands END {
 };
 
 declarations: declarations COMMA pidentifier {
-	auto declaration = new Declaration();
-	declaration->id = std::get<std::string>($3);
-	program->declarations.push_back(declaration);
+	program->declarations.push_back(new Variable(
+		std::get<std::string>($3),
+		0
+	));
 }| declarations COMMA pidentifier BR_OPEN num COLON num BR_CLOSE {
-	auto declaration = new Declaration();
-	declaration->id = std::get<std::string>($3);
-	program->declarations.push_back(declaration);
+	program->declarations.push_back(new Table(
+		std::get<std::string>($3),
+		0,
+		std::get<long long>($5),
+		std::get<long long>($7)
+	));
 }| pidentifier {
-	auto declaration = new Declaration();
-	declaration->id = std::get<std::string>($1);
-	program->declarations.push_back(declaration);
+	program->declarations.push_back(new Variable(
+		std::get<std::string>($1),
+		0
+	));
 }| pidentifier BR_OPEN num COLON num BR_CLOSE {
-	auto declaration = new Declaration();
-	declaration->id = std::get<std::string>($1);
-	program->declarations.push_back(declaration);
+	program->declarations.push_back(new Table(
+		std::get<std::string>($1),
+		0,
+		std::get<long long>($3),
+		std::get<long long>($5)
+	));
 };
 
 commands: commands command {
-
+	program->commands.push_back(command);
 }| command {
-
+	program->commands.push_back(command);
 };
 
 command: identifier ASSIGN expression SEMICOLON {
-
+	command = new Assign(std::get<std::string>($1), new Expression());
 }| IF condition THEN commands ELSE commands ENDIF {
 
 }| IF condition THEN commands ENDIF {

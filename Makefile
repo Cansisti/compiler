@@ -54,6 +54,6 @@ front:
 	bison -d -o $(BIN)/bison.tab.c $(SRC)/lang.y
 	flex -o $(BIN)/lex.yy.c $(SRC)/lang.l
 
-test: all
+test:
 	python3 ./test-framework/test_runner.py ./external/tests
 	python3 ./test-framework/test_runner.py ./external/programs

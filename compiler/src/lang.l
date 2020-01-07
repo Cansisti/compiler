@@ -52,7 +52,7 @@ GEQ return GEQ;
 	return pidentifier;
 }
 (-?[1-9][0-9]*)|0 {
-	yylval = std::stoi(yytext);
+	yylval = std::stoll(yytext);
 	return num;
 }
 

@@ -4,8 +4,11 @@
             "name": "Linux",
             "defines": [],
             "includePath": [
-                "${workspaceFolder}/**"
-            ]
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/compiler/include/**"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cppStandard": "c++17"
         }
     ],
     "version": 4

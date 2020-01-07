@@ -24,9 +24,13 @@ int main(int argc, char** argv) {
 
 	spdlog::info("Declarations: {}", program->declarations.size());
 	for(auto declaration: program->declarations) {
-		spdlog::debug("- '{}' at {}", declaration->id, declaration->line);
+		spdlog::debug("- {}", declaration);
 	}
 
+	spdlog::info("Commands: {}", program->commands.size());
+	for(auto command: program->commands) {
+		// spdlog::debug("- {}", command);
+	}
 
 	return 0;
 }
