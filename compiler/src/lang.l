@@ -8,10 +8,10 @@
 %%
 
 [ \t\n]+ ;
-\[.*\] ;
+\[[^]]*\] ;
 
 DECLARE return DECLARE;
-BEGIN return BEGIN;
+BEGIN return _BEGIN;
 END return END;
 ASSIGN return ASSIGN;
 IF return IF;
@@ -51,7 +51,9 @@ GEQ return GEQ;
 	yylval = std::string(yytext);
 	return pidentifier;
 }
--?[1-9][0-9]* {
+(-?[1-9][0-9]*)|0 {
 	yylval = std::stoi(yytext);
 	return num;
 }
+
+. return UNEXPECTED_SYMBOL;

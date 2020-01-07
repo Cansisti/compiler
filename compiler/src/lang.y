@@ -2,7 +2,7 @@
 
 #include <variant>
 #include <string>
-#define YYSTYPE std::variant<int, std::string>
+#define YYSTYPE std::variant<long long, std::string>
 
 }
 
@@ -14,7 +14,7 @@ extern void yyerror(const char*);
 %}
 
 %token DECLARE
-%token BEGIN
+%token _BEGIN
 %token END
 %token ASSIGN
 %token IF
@@ -53,11 +53,13 @@ extern void yyerror(const char*);
 %token pidentifier
 %token num
 
+%token UNEXPECTED_SYMBOL
+
 %%
 
-program: DECLARE declarations BEGIN commands END {
+program: DECLARE declarations _BEGIN commands END {
 	return 0;
-}| BEGIN commands END {
+}| _BEGIN commands END {
 	return 0;
 };
 

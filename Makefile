@@ -14,7 +14,16 @@ OBJECTS		:= $(patsubst %.c, %.o, $(OBJECTS))
 OBJECTS		:= $(patsubst ./$(SRC)%, ./$(OBJ)%, $(OBJECTS))
 DEPENDS		:= $(patsubst %.o, %.d, $(OBJECTS))
 
-all: prepare cmp
+all: prepare front cmp
+
+.PHONY: clean
+clean:
+	rm -f $(OBJ)/*.o
+	rm -f $(OBJ)/*.d
+	rm -f $(BIN)/$(EXECUTABLE)
+	rm -f $(BIN)/lex.yy.c
+	rm -f $(BIN)/bison.tab.c
+	rm -f $(BIN)/bison.tab.h
 
 prepare:
 	mkdir -p $(BIN)
@@ -37,12 +46,6 @@ $(OBJ)/%.d: $(SRC)/%.cpp
 $(OBJ)/%.d: $(SRC)/%.c
 	$(CPP) $(C_FLAGS) $(INCLUDE) $< -MM -MT $(@:.d=.o) > $@
 
-.PHONY: clean
-clean:
-	rm -f $(OBJ)/*.o
-	rm -f $(OBJ)/*.d
-	rm -f $(BIN)/$(EXECUTABLE)
-
 $(BIN)/lex.yy.c: front
 $(BIN)/bison.tab.c: front
 $(BIN)/bison.tab.h: front
@@ -50,3 +53,7 @@ $(BIN)/bison.tab.h: front
 front:
 	bison -d -o $(BIN)/bison.tab.c $(SRC)/lang.y
 	flex -o $(BIN)/lex.yy.c $(SRC)/lang.l
+
+test: all
+	python3 ./test-framework/test_runner.py ./external/tests
+	python3 ./test-framework/test_runner.py ./external/programs
