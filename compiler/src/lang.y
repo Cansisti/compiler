@@ -1,16 +1,15 @@
 %code requires{
-
 #include <variant>
 #include <string>
 #define YYSTYPE std::variant<long long, std::string>
-
 }
 
 %{
+#include "program.h"
+extern Program* program;
 
 extern int yylex();
 extern void yyerror(const char*);
-
 %}
 
 %token DECLARE
@@ -64,13 +63,21 @@ program: DECLARE declarations _BEGIN commands END {
 };
 
 declarations: declarations COMMA pidentifier {
-
+	auto declaration = new Declaration();
+	declaration->id = std::get<std::string>($3);
+	program->declarations.push_back(declaration);
 }| declarations COMMA pidentifier BR_OPEN num COLON num BR_CLOSE {
-
+	auto declaration = new Declaration();
+	declaration->id = std::get<std::string>($3);
+	program->declarations.push_back(declaration);
 }| pidentifier {
-
+	auto declaration = new Declaration();
+	declaration->id = std::get<std::string>($1);
+	program->declarations.push_back(declaration);
 }| pidentifier BR_OPEN num COLON num BR_CLOSE {
-
+	auto declaration = new Declaration();
+	declaration->id = std::get<std::string>($1);
+	program->declarations.push_back(declaration);
 };
 
 commands: commands command {
