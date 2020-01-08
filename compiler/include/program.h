@@ -1,10 +1,26 @@
 #pragma once
 #include <vector>
-#include "command.h"
+#include <variant>
 #include "declaration.h"
+#include "commands/assign.h"
 
 class Program {
 	public:
+		typedef std::variant<
+			Assign*
+		> AnyCommand;
+		
+		struct AnyCommandVisitor {
+			// why they can't be const for spdlog?
+			Command* operator()(Command* command) const {
+				return command;
+			}
+		};
+
 		std::vector<Declaration*> declarations;
-		std::vector<Command*> commands;
+		std::vector<AnyCommand> commands;
+
+		bool validate();
+	protected:
+		struct CommandValidateVisitor;
 };

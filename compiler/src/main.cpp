@@ -23,13 +23,18 @@ int main(int argc, char** argv) {
 	}
 
 	spdlog::info("Declarations: {}", program->declarations.size());
-	for(auto declaration: program->declarations) {
-		spdlog::debug("- {}", declaration);
+	for(auto& declaration: program->declarations) {
+		spdlog::debug(declaration);
 	}
 
 	spdlog::info("Commands: {}", program->commands.size());
-	for(auto command: program->commands) {
-		// spdlog::debug("- {}", command);
+	for(auto& anyCommand: program->commands) {
+		spdlog::debug(std::visit(Program::AnyCommandVisitor(), anyCommand));
+	}
+
+	if(!program->validate()) {
+		spdlog::debug("Validation failed");
+		return 0;
 	}
 
 	return 0;

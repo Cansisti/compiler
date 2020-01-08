@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 
 class Declaration {
@@ -8,9 +7,7 @@ class Declaration {
 		std::string id;
 		size_t line;
 
-		virtual const int type() const {
-			return -1;
-		};
+		virtual const int type() const = 0;
 
 		virtual const std::string type_string() const = 0;
 

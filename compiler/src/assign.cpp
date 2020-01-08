@@ -8,3 +8,11 @@ Assign::Assign(std::string _id, Expression* _value) {
 void Assign::translate() {
 
 }
+
+const int Assign::type() const {
+	return 0;
+}
+
+const std::string Assign::type_string() const {
+	return "assign";
+}

@@ -3,6 +3,7 @@
 %{
 #include <string>
 #include "bison.tab.h"
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;
 %}
 
 %%

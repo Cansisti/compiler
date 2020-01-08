@@ -7,7 +7,6 @@
 %{
 #include "program.h"
 extern Program* program;
-Command* command;
 
 #include "declarations/variable.h"
 #include "declarations/table.h"
@@ -71,37 +70,35 @@ program: DECLARE declarations _BEGIN commands END {
 declarations: declarations COMMA pidentifier {
 	program->declarations.push_back(new Variable(
 		std::get<std::string>($3),
-		0
+		@3.first_line
 	));
 }| declarations COMMA pidentifier BR_OPEN num COLON num BR_CLOSE {
 	program->declarations.push_back(new Table(
 		std::get<std::string>($3),
-		0,
+		@3.first_line,
 		std::get<long long>($5),
 		std::get<long long>($7)
 	));
 }| pidentifier {
 	program->declarations.push_back(new Variable(
 		std::get<std::string>($1),
-		0
+		@1.first_line
 	));
 }| pidentifier BR_OPEN num COLON num BR_CLOSE {
 	program->declarations.push_back(new Table(
 		std::get<std::string>($1),
-		0,
+		@1.first_line,
 		std::get<long long>($3),
 		std::get<long long>($5)
 	));
 };
 
-commands: commands command {
-	program->commands.push_back(command);
-}| command {
-	program->commands.push_back(command);
-};
-
+commands: commands command | command;
 command: identifier ASSIGN expression SEMICOLON {
-	command = new Assign(std::get<std::string>($1), new Expression());
+	program->commands.push_back(new Assign(
+		std::get<std::string>($1), // todo: identifier is variable or table
+		new Expression()
+	));
 }| IF condition THEN commands ELSE commands ENDIF {
 
 }| IF condition THEN commands ENDIF {
@@ -155,9 +152,9 @@ value: num {
 };
 
 identifier: pidentifier {
-
+	// todo
 }| pidentifier BR_OPEN pidentifier BR_CLOSE {
-
+	// todo
 }| pidentifier BR_OPEN num BR_CLOSE {
-
+	// todo
 };
