@@ -7,12 +7,11 @@
 class Program {
 	public:
 		typedef std::variant<
-			Assign*
+			Assign
 		> AnyCommand;
-		
+
 		struct AnyCommandVisitor {
-			// why they can't be const for spdlog?
-			Command* operator()(Command* command) const {
+			const Command& operator()(const Command& command) const {
 				return command;
 			}
 		};
@@ -23,4 +22,9 @@ class Program {
 		bool validate();
 	protected:
 		struct CommandValidateVisitor;
+		struct AnyValidateVisitor;
+		struct ExpressionValidateVisitor;
+		struct ValueValidateVisitor;
+
+		bool checkForPresence(const Identifier* id);
 };

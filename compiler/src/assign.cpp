@@ -1,18 +1,16 @@
 #include "commands/assign.h"
+#include <sstream>
 
-Assign::Assign(std::string _id, Expression* _value) {
-	id = id;
-	value = _value;
+Assign::Assign(Identifier* id, Expression* expr) :
+	id(id),
+	expr(expr)
+{
+
 }
 
-void Assign::translate() {
-
-}
-
-const int Assign::type() const {
-	return 0;
-}
-
-const std::string Assign::type_string() const {
-	return "assign";
+const std::string Assign::describe() const {
+	std::stringstream ss;
+	const auto& identifier = std::visit(Anything::AnyVisitor(), *id);
+	ss << "assignment to '" << identifier.name << "' at " << identifier.line;
+	return ss.str();
 }

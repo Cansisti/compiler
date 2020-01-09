@@ -2,12 +2,16 @@
 #include <variant>
 #include <string>
 
-#include "declaration.h"
+#include "identifier.h"
+#include "value.h"
 #include "expression.h"
+#include "condition.h"
 
 typedef std::variant<
-	std::string,
-	long long,
-	Declaration*,
-	Expression*
+	PId,
+	Num,
+	Identifier*,
+	Value*,
+	Expression*,
+	Condition*
 > Any;

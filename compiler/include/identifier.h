@@ -1,14 +1,12 @@
 #pragma once
-#include <spdlog/fmt/ostr.h>
-#include <string>
+#include <variant>
 
-class Identifier {
-	public:
-		std::string name;
+#include "identifiers/constantTableIdentifier.h"
+#include "identifiers/labeledTableIdentifier.h"
+#include "identifiers/variableIdentifier.h"
 
-		template<typename OStream>
-		friend OStream &operator<<(OStream &os, const Identifier* identifier)
-		{
-			return os << name;
-		}
-};
+typedef std::variant<
+	ConstantTableIdentifier,
+	LabeledTableIdentifier,
+	VariableIdentifier
+> Identifier;

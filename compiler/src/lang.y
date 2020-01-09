@@ -95,9 +95,9 @@ declarations: declarations COMMA pidentifier {
 
 commands: commands command | command;
 command: identifier ASSIGN expression SEMICOLON {
-	program->commands.push_back(new Assign(
-		std::get<std::string>($1), // todo: identifier is variable or table
-		new Expression()
+	program->commands.push_back(Assign(
+		std::get<Identifier*>($1),
+		new Expression(new ExpressionType("", 0))
 	));
 }| IF condition THEN commands ELSE commands ENDIF {
 
@@ -146,15 +146,26 @@ condition: value EQ value {
 };
 
 value: num {
-
+	$$ = new Value(std::get<Num>($1));
 }| identifier {
-
+	$$ = new Value(std::get<Identifier*>($1));
 };
 
 identifier: pidentifier {
-	// todo
+	$$ = new Identifier(VariableIdentifier(
+		std::get<PId>($1),
+		@1.first_line
+	));
 }| pidentifier BR_OPEN pidentifier BR_CLOSE {
-	// todo
+	$$ = new Identifier(LabeledTableIdentifier(
+		std::get<PId>($1),
+		@1.first_line,
+		std::get<PId>($3)
+	));
 }| pidentifier BR_OPEN num BR_CLOSE {
-	// todo
+	$$ = new Identifier(ConstantTableIdentifier(
+		std::get<PId>($1),
+		@1.first_line,
+		std::get<Num>($3)
+	));
 };
