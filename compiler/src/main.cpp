@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
 	if(!program->validate()) {
 		spdlog::debug("Validation failed");
-		return 0;
+		return 1;
 	}
 
 	return 0;

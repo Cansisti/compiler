@@ -13,6 +13,8 @@ extern Program* program;
 
 #include "commands/assign.h"
 
+#include "spdlog/spdlog.h"
+
 extern int yylex();
 extern void yyerror(const char*);
 %}
@@ -97,7 +99,7 @@ commands: commands command | command;
 command: identifier ASSIGN expression SEMICOLON {
 	program->commands.push_back(Assign(
 		std::get<Identifier*>($1),
-		new Expression(new ExpressionType("", 0))
+		std::get<Expression*>($3)
 	));
 }| IF condition THEN commands ELSE commands ENDIF {
 
@@ -118,17 +120,42 @@ command: identifier ASSIGN expression SEMICOLON {
 };
 
 expression: value {
-
+	$$ = new Expression(std::get<Value*>($1));
 }| value PLUS value {
-
+	$$ = new Expression(new AnyExpression(new AddExpression(
+		"PLUS",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3)
+	)));
 }| value MINUS value {
-
+	$$ = new Expression(new AnyExpression(new SubExpression(
+		"MINUS",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3)
+	)));
 }| value TIMES value {
-
+	$$ = new Expression(new AnyExpression(new MulExpression(
+		"TIMES",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3)
+	)));
 }| value DIV value {
-
+	$$ = new Expression(new AnyExpression(new DivExpression(
+		"DIV",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3)
+	)));
 }| value MOD value {
-
+	$$ = new Expression(new AnyExpression(new ModExpression(
+		"MOD",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3)
+	)));
 };
 
 condition: value EQ value {

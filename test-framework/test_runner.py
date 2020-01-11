@@ -9,9 +9,16 @@ print("#########################################")
 print()
 print()
 
+failures = 0
+tests = 0
+
 for file in os.listdir(path):
 	if file.endswith(".imp"):
 		print("-----------------------------------------")
 		print(file)
+		tests += 1
 		print("---")
-		os.system(cmp + " < " + path + "/" + file)
+		if os.system(cmp + " < " + path + "/" + file) != 0:
+			failures += 1
+
+print("####### ", failures, " failures out of ", tests, " tests")

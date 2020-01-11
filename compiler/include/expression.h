@@ -3,16 +3,18 @@
 #include "anything.h"
 #include "value.h"
 
-class ExpressionType: public virtual Anything {
-	public:
-		ExpressionType(const std::string name, const size_t line, const Value* left, const Value* right) :
-			Anything("expression", name, line),
-			left(left),
-			right(right)
-		{}
+#include "expressions/addExpression.h"
+#include "expressions/subExpression.h"
+#include "expressions/mulExpression.h"
+#include "expressions/divExpression.h"
+#include "expressions/modExpression.h"
 
-		const Value* left;
-		const Value* right;
-};
+typedef std::variant<
+	AddExpression*,
+	SubExpression*,
+	MulExpression*,
+	DivExpression*,
+	ModExpression*
+> AnyExpression;
 
-typedef std::variant<ExpressionType*, Value*> Expression;
+typedef std::variant<AnyExpression*, Value*> Expression;

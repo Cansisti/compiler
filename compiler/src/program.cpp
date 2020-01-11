@@ -2,6 +2,7 @@
 #include "expression.h"
 #include <algorithm>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 
 #define ProgramVisitorConstructor(name) Program* program; name(Program* program): program(program) {}
 
@@ -17,26 +18,26 @@ struct Program::ValueValidateVisitor {
 	}
 };
 
-struct Program::ExpressionValidateVisitor {
-	ProgramVisitorConstructor(ExpressionValidateVisitor)
+struct Program::AnyExpressionValidateVisitor {
+	ProgramVisitorConstructor(AnyExpressionValidateVisitor)
 
 	bool operator()(const ExpressionType* expressionType) {
 		return
 			std::visit(ValueValidateVisitor(program), *expressionType->left) and
 			std::visit(ValueValidateVisitor(program), *expressionType->right);
 	}
+};
+
+struct Program::ExpressionValidateVisitor {
+	ProgramVisitorConstructor(ExpressionValidateVisitor)
+
+	bool operator()(const AnyExpression* anyExpression) {
+		return std::visit(AnyExpressionValidateVisitor(program), *anyExpression);
+	}
 
 	bool operator()(const Value* value) {
 		return std::visit(ValueValidateVisitor(program), *value);
 	}
-};
-
-struct Program::AnyValidateVisitor {
-	ProgramVisitorConstructor(AnyValidateVisitor)
-
-	bool operator()(const Expression& expression) {
-		return std::visit(ExpressionValidateVisitor(program), expression);
-    }
 };
 
 struct Program::CommandValidateVisitor {
@@ -45,7 +46,7 @@ struct Program::CommandValidateVisitor {
 	bool operator()(const Assign &assign) {
 		return
 			program->checkForPresence(assign.id) and
-			std::visit(AnyValidateVisitor(program), *assign.expr);
+			std::visit(ExpressionValidateVisitor(program), *assign.expr);
     }
 };
 

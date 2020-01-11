@@ -22,8 +22,8 @@ class Program {
 		bool validate();
 	protected:
 		struct CommandValidateVisitor;
-		struct AnyValidateVisitor;
 		struct ExpressionValidateVisitor;
+		struct AnyExpressionValidateVisitor;
 		struct ValueValidateVisitor;
 
 		bool checkForPresence(const Identifier* id);
