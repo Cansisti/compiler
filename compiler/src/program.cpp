@@ -121,6 +121,10 @@ struct Program::CommandValidateVisitor {
 		return std::visit(IdentifierValidateVisitor(program), *read->id);
 	}
 
+	bool operator()(const Write* write) {
+		return std::visit(ValueValidateVisitor(program), *write->value);
+	}
+
 	bool operator()(const NotACommand* nac) {
 		return true;
 	}

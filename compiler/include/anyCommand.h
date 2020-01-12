@@ -6,6 +6,7 @@
 #include "commands/assign.h"
 #include "commands/forLoop.h"
 #include "commands/read.h"
+#include "commands/write.h"
 
 class NotACommand: public virtual Command {
 	const std::string describe() const override {
@@ -17,6 +18,7 @@ typedef std::variant<
 	Assign*,
 	ForLoop*,
 	Read*,
+	Write*,
 	NotACommand*
 > AnyCommand;
 

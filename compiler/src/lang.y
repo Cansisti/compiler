@@ -139,7 +139,10 @@ command: identifier ASSIGN expression SEMICOLON {
 		std::get<Identifier*>($2)
 	));
 }| WRITE value SEMICOLON {
-	$$ = new AnyCommand(new NotACommand);
+	$$ = new AnyCommand(new Write(
+		std::get<Value*>($2),
+		@2.first_line
+	));
 };
 
 expression: value {
