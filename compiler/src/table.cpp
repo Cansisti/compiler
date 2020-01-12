@@ -1,6 +1,7 @@
 #include "declarations/table.h"
+#include <spdlog/spdlog.h>
 
-Table::Table(std::string _id, size_t _line, int _from, int _to) {
+Table::Table(PId _id, size_t _line, Num _from, Num _to) {
 	id = _id;
 	line = _line;
 	from = _from;
@@ -13,4 +14,18 @@ const int Table::type() const {
 
 const std::string Table::type_string() const {
 	return "table";
+}
+
+bool Table::checkRange(Num n) const {
+	return
+		n >= from and
+		n <= to;
+}
+
+bool Table::validate() const {
+	if(from > to) {
+		spdlog::error("{}: invalid table declaration '{}'", line, id);
+		return false;
+	}
+	return true;
 }

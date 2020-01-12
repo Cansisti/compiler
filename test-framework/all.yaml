@@ -1,0 +1,4 @@
+title: All tests
+
+tests:
+  - include: ./test-framework/errors.yaml

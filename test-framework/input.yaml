@@ -1,7 +1,0 @@
-title: cmp tests
-suite: all
-output: output.yaml
-
-tests:
-
-- sh: 

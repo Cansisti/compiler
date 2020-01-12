@@ -1,0 +1,23 @@
+title: Errors test
+output: ./test-framework/errors-out.yaml
+suite: errors
+
+tests:
+- sh: ./build/cmp ./external/programs/error0.imp -
+  exit: 102
+- sh: ./build/cmp ./external/programs/error1.imp -
+  exit: 102
+- sh: ./build/cmp ./external/programs/error2.imp -
+  exit: 102
+- sh: ./build/cmp ./external/programs/error3.imp -
+  exit: 102
+- sh: ./build/cmp ./external/programs/error4.imp -
+  exit: 1
+- sh: ./build/cmp ./external/programs/error5.imp -
+  exit: 102
+- sh: ./build/cmp ./external/programs/error6.imp -
+  exit: 102
+- sh: ./build/cmp ./external/programs/error7.imp -
+  exit: 102
+- sh: ./build/cmp ./external/programs/error8.imp -
+  exit: 102

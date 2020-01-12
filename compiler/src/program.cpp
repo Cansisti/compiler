@@ -3,16 +3,75 @@
 #include <algorithm>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
+#include "declarations/table.h"
+#include "declarations/variable.h"
 
 #define ProgramVisitorConstructor(name) const Program* program; name(const Program* program): program(program) {}
 
 extern Program* __program;
 
+struct Program::IdentifierValidateVisitor {
+	ProgramVisitorConstructor(IdentifierValidateVisitor)
+
+	bool operator()(const ConstantTableIdentifier& id) {
+		auto declaration = program->findDeclaration(id.name);
+		if(declaration == nullptr) {
+			spdlog::error("{}: unknown variable '{}'", id.line, id.name);
+			return false;
+		}
+		auto table = dynamic_cast<const Table*>(declaration);
+		if(table == nullptr) {
+			spdlog::error("{}: variable '{}' is not a table", id.line, id.name);
+			return false;
+		}
+		if(!table->checkRange(id.n)) {
+			spdlog::error("{}: index '{}' is out of '{}' range", id.line, id.n, id.name);
+			return false;
+		}
+		return true;
+	}
+
+	bool operator()(const LabeledTableIdentifier& id) {
+		auto declaration = program->findDeclaration(id.name);
+		if(declaration == nullptr) {
+			spdlog::error("{}: unknown variable '{}'", id.line, id.name);
+			return false;
+		}
+		auto index = program->findDeclaration(id.p);
+		if(index == nullptr) {
+			spdlog::error("{}: unknown variable '{}'", id.line, id.p);
+			return false;
+		}
+		if(index->type() != 0) {
+			spdlog::error("{}: table '{}' cannot be referenced with other table '{}'", id.line, id.name, id.p);
+			return false;
+		}
+		if(declaration->type() != 1) {
+			spdlog::error("{}: variable '{}' is not a table", id.line, id.name);
+			return false;
+		}
+		return true;
+	}
+
+	bool operator()(const VariableIdentifier& id) {
+		auto declaration = program->findDeclaration(id.name);
+		if(declaration == nullptr) {
+			spdlog::error("{}: unknown variable '{}'", id.line, id.name);
+			return false;
+		}
+		if(declaration->type() != 0) {
+			spdlog::error("{}: wrong usage of table '{}'", id.line, id.name);
+			return false;
+		}
+		return true;
+	}
+};
+
 struct Program::ValueValidateVisitor {
 	ProgramVisitorConstructor(ValueValidateVisitor)
 
 	bool operator()(const Identifier* id) {
-		return program->checkForPresence(id);
+		return std::visit(IdentifierValidateVisitor(program), *id);
 	}
 
 	bool operator()(const Num num) {
@@ -47,7 +106,7 @@ struct Program::CommandValidateVisitor {
 
 	bool operator()(const Assign* assign) {
 		return
-			program->checkForPresence(assign->id) and
+			std::visit(IdentifierValidateVisitor(program), *assign->id) and
 			std::visit(ExpressionValidateVisitor(program), *assign->expr);
     }
 
@@ -64,6 +123,21 @@ struct Program::CommandValidateVisitor {
 };
 
 bool Program::validate() const {
+	for(auto declaration: declarations) {
+		for(auto dd: declarations) {
+			if(dd == declaration) continue;
+			if(dd->id == declaration->id) {
+				spdlog::error("{}: redeclaration of {}", dd->line, dd->id);
+				spdlog::info("Validation failed due to redeclaration");
+				return false;
+			}
+		}
+		if(!declaration->validate()) {
+			spdlog::info("Validation failed for:");
+			spdlog::info(declaration);
+			return false;
+		};
+	}
 	for(auto command: *commands) {
 		if(!std::visit(CommandValidateVisitor(this), *command)) {
 			spdlog::info("Validation failed for:");
@@ -74,18 +148,16 @@ bool Program::validate() const {
 	return true;
 }
 
-bool Program::checkForPresence(const Identifier* id) const { // todo error8 / index of table can be id also and needs to be checked
+const Declaration* Program::findDeclaration(const PId id) const {
 	for(auto declaration: declarations) {
-		if(declaration->id == std::visit(Anything::AnyVisitor(), *id).name) {
-			return true;
+		if(declaration->id == id) {
+			return declaration;
 		}
 	}
 	for(auto declaration: __program->declarations) {
-		if(declaration->id == std::visit(Anything::AnyVisitor(), *id).name) {
-			return true;
+		if(declaration->id == id) {
+			return declaration;
 		}
 	}
-	auto& theId = std::visit(Anything::AnyVisitor(), *id);
-	spdlog::error("{}: unknown variable '{}'", theId.line, theId.name);
-	return false;
+	return nullptr;
 }

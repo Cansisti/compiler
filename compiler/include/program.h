@@ -16,6 +16,7 @@ class Program {
 		struct ExpressionValidateVisitor;
 		struct AnyExpressionValidateVisitor;
 		struct ValueValidateVisitor;
+		struct IdentifierValidateVisitor;
 
-		bool checkForPresence(const Identifier* id) const;
+		const Declaration* findDeclaration(const PId id) const;
 };

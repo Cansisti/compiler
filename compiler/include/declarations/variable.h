@@ -1,9 +1,11 @@
 #pragma once
 #include "declaration.h"
+#include "anything.h"
 
 class Variable: public Declaration {
 	public:
-		Variable(std::string id, size_t line);
+		Variable(PId id, size_t line);
 		virtual const int type() const override;
 		virtual const std::string type_string() const override;
+		virtual bool validate() const override;
 };
