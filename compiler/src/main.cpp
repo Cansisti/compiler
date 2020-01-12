@@ -66,9 +66,10 @@ int main(int argc, char** argv) {
 
 	spdlog::info("Commands: {}", __program->commands->size());
 	for(auto& anyCommand: *__program->commands) {
-		if(std::visit(AnyCommandVisitor(), *anyCommand)) // todo remove it
-			spdlog::debug(*std::visit(AnyCommandVisitor(), *anyCommand));
+		spdlog::debug(*std::visit(AnyCommandVisitor(), *anyCommand));
 	}
+
+	__program->progagateParents();
 
 	if(!__program->validate()) {
 		spdlog::debug("Validation failed");

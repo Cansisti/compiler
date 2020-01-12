@@ -133,7 +133,19 @@ command: identifier ASSIGN expression SEMICOLON {
 		program
 	));
 }| FOR pidentifier FROM value DOWNTO value DO commands ENDFOR {
-	$$ = new AnyCommand(new NotACommand);
+	auto program = new Program();
+	program->commands = std::get<Commands*>($8);
+	program->declarations.push_back(new Variable(
+		std::get<PId>($2),
+		@2.first_line
+	));
+	$$ = new AnyCommand(new ForLoop(
+		std::get<PId>($2),
+		ForLoop::Modifier::down,
+		std::get<Value*>($4),
+		std::get<Value*>($6),
+		program
+	));
 }| READ identifier SEMICOLON {
 	$$ = new AnyCommand(new Read(
 		std::get<Identifier*>($2)

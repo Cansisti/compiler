@@ -130,6 +130,19 @@ struct Program::CommandValidateVisitor {
 	}
 };
 
+struct Program::SetParentVisitor {
+	ProgramVisitorConstructor(SetParentVisitor)
+
+	template<class T>
+	void operator()(const T* t) {
+	}
+
+	void operator()(ForLoop* forLoop) {
+		forLoop->program->parent = const_cast<Program*>(program);
+		forLoop->program->progagateParents();
+	}
+};
+
 bool Program::validate() const {
 	for(auto declaration: declarations) {
 		for(auto dd: declarations) {
@@ -162,10 +175,11 @@ const Declaration* Program::findDeclaration(const PId id) const {
 			return declaration;
 		}
 	}
-	for(auto declaration: __program->declarations) {
-		if(declaration->id == id) {
-			return declaration;
-		}
+	return parent ? parent->findDeclaration(id) : nullptr;
+}
+
+void Program::progagateParents() {
+	for(auto command: *commands) {
+		std::visit(SetParentVisitor(this), *command);
 	}
-	return nullptr;
 }

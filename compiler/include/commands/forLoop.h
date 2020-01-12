@@ -20,5 +20,5 @@ class ForLoop: public virtual Command {
 		const Modifier modifier;
 		const Value* from;
 		const Value* to;
-		const Program* program;
+		Program* program;
 };
