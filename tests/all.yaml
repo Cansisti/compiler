@@ -1,0 +1,6 @@
+title: All tests
+
+tests:
+  - include: ./tests/errors.yaml
+  - include: ./tests/programs-compiling.yaml
+  - include: ./tests/tests.yaml

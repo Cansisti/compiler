@@ -1,4 +1,4 @@
-C_FLAGS		:= -std=c++17 -Wall -g
+C_FLAGS		:= --std=c++17 -Wall -g
 
 BIN			:= build
 SRC			:= compiler/src
@@ -55,17 +55,17 @@ front:
 	flex -o $(BIN)/lex.yy.c $(SRC)/lang.l
 
 run:
-	python3 ./test-framework/_runner.py ./external/tests
-	python3 ./test-framework/_runner.py ./external/programs
+	python3 ./tests/_runner.py ./external/tests
+	python3 ./tests/_runner.py ./external/programs
 
 test:
-	pbbt ./test-framework/all.yaml
+	pbbt ./tests/all.yaml
 
 test/errors:
-	pbbt ./test-framework/errors.yaml
+	pbbt ./tests/errors.yaml
 
 test/compiling:
-	pbbt ./test-framework/programs-compiling.yaml
+	pbbt ./tests/programs-compiling.yaml
 
 test/tests:
-	pbbt ./test-framework/tests.yaml
+	pbbt ./tests/tests.yaml
