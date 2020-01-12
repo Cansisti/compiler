@@ -18,7 +18,7 @@ for file in os.listdir(path):
 		print(file)
 		tests += 1
 		print("---")
-		if os.system(cmp + " " + path + "/" + file + " /dev/null") != 0:
+		if os.system(cmp + " " + path + "/" + file + " /dev/null -v") != 0:
 			failures += 1
 
 print("####### ", failures, " failures out of ", tests, " tests")
