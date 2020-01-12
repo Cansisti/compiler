@@ -17,4 +17,6 @@ class Declaration {
 		{
 			return os << declaration->type_string() << " '" << declaration->id << "' at " << declaration->line;
 		}
+
+		bool initiated;
 };

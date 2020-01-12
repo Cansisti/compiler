@@ -14,7 +14,7 @@ struct Program::IdentifierValidateVisitor {
 	ProgramVisitorConstructor(IdentifierValidateVisitor)
 
 	bool operator()(const ConstantTableIdentifier& id) {
-		auto declaration = program->findDeclaration(id.name);
+		const auto declaration = program->findDeclaration(id.name);
 		if(declaration == nullptr) {
 			spdlog::error("{}: unknown variable '{}'", id.line, id.name);
 			return false;
@@ -32,12 +32,12 @@ struct Program::IdentifierValidateVisitor {
 	}
 
 	bool operator()(const LabeledTableIdentifier& id) {
-		auto declaration = program->findDeclaration(id.name);
+		const auto declaration = program->findDeclaration(id.name);
 		if(declaration == nullptr) {
 			spdlog::error("{}: unknown variable '{}'", id.line, id.name);
 			return false;
 		}
-		auto index = program->findDeclaration(id.p);
+		const auto index = program->findDeclaration(id.p);
 		if(index == nullptr) {
 			spdlog::error("{}: unknown variable '{}'", id.line, id.p);
 			return false;
@@ -54,7 +54,7 @@ struct Program::IdentifierValidateVisitor {
 	}
 
 	bool operator()(const VariableIdentifier& id) {
-		auto declaration = program->findDeclaration(id.name);
+		const auto declaration = program->findDeclaration(id.name);
 		if(declaration == nullptr) {
 			spdlog::error("{}: unknown variable '{}'", id.line, id.name);
 			return false;
@@ -71,7 +71,15 @@ struct Program::ValueValidateVisitor {
 	ProgramVisitorConstructor(ValueValidateVisitor)
 
 	bool operator()(const Identifier* id) {
-		return std::visit(IdentifierValidateVisitor(program), *id);
+		if(std::visit(IdentifierValidateVisitor(program), *id)) {
+			const auto declaration = program->findDeclaration(std::visit(Anything::AnyVisitor(), *id).name);
+			if(declaration->initiated) {
+				return true;
+			}
+			auto theId = std::visit(Anything::AnyVisitor(), *id);
+			spdlog::error("{}: use of not initiated variable '{}'", theId.line, theId.name);
+		}
+		return false;
 	}
 
 	bool operator()(const Num num) {
@@ -105,9 +113,11 @@ struct Program::CommandValidateVisitor {
 	ProgramVisitorConstructor(CommandValidateVisitor)
 
 	bool operator()(const Assign* assign) {
-		return
-			std::visit(IdentifierValidateVisitor(program), *assign->id) and
-			std::visit(ExpressionValidateVisitor(program), *assign->expr);
+		if(std::visit(IdentifierValidateVisitor(program), *assign->id) and std::visit(ExpressionValidateVisitor(program), *assign->expr)) {
+			program->findDeclaration(std::visit(Anything::AnyVisitor(), *assign->id).name)->initiated = true;
+			return true;
+		}
+		return false;
     }
 
 	bool operator()(const ForLoop* forLoop) {
@@ -118,7 +128,11 @@ struct Program::CommandValidateVisitor {
 	}
 
 	bool operator()(const Read* read) {
-		return std::visit(IdentifierValidateVisitor(program), *read->id);
+		if(std::visit(IdentifierValidateVisitor(program), *read->id)) {
+			program->findDeclaration(std::visit(Anything::AnyVisitor(), *read->id).name)->initiated = true;
+			return true;
+		}
+		return false;
 	}
 
 	bool operator()(const Write* write) {
@@ -192,7 +206,7 @@ bool Program::validate() const {
 	return true;
 }
 
-const Declaration* Program::findDeclaration(const PId id) const {
+Declaration* Program::findDeclaration(const PId id) const {
 	for(auto declaration: declarations) {
 		if(declaration->id == id) {
 			return declaration;

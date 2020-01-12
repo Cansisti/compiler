@@ -147,10 +147,12 @@ command: identifier ASSIGN expression SEMICOLON {
 }| FOR pidentifier FROM value TO value DO commands ENDFOR {
 	auto program = new Program();
 	program->commands = std::get<Commands*>($8);
-	program->declarations.push_back(new Variable(
+	auto counter = new Variable(
 		std::get<PId>($2),
 		@2.first_line
-	));
+	);
+	counter->initiated = true;
+	program->declarations.push_back(counter);
 	$$ = new AnyCommand(new ForLoop(
 		std::get<PId>($2),
 		ForLoop::Modifier::up,
@@ -161,10 +163,12 @@ command: identifier ASSIGN expression SEMICOLON {
 }| FOR pidentifier FROM value DOWNTO value DO commands ENDFOR {
 	auto program = new Program();
 	program->commands = std::get<Commands*>($8);
-	program->declarations.push_back(new Variable(
+	auto counter = new Variable(
 		std::get<PId>($2),
 		@2.first_line
-	));
+	);
+	counter->initiated = true;
+	program->declarations.push_back(counter);
 	$$ = new AnyCommand(new ForLoop(
 		std::get<PId>($2),
 		ForLoop::Modifier::down,

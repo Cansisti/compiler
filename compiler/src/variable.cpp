@@ -3,6 +3,7 @@
 Variable::Variable(PId _id, size_t _line) {
 	id = _id;
 	line = _line;
+	initiated = false;
 }
 
 const int Variable::type() const {

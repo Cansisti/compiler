@@ -6,6 +6,7 @@ Table::Table(PId _id, size_t _line, Num _from, Num _to) {
 	line = _line;
 	from = _from;
 	to = _to;
+	initiated = true;
 }
 
 const int Table::type() const {

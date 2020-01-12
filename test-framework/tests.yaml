@@ -1,6 +1,6 @@
-title: Tests from /tests
-output: ./test-framework/out/tests-out.yaml
-suite: tests
+title: Tests from /tests (compilation)
+output: ./test-framework/out/tests-compilation-out.yaml
+suite: tests-compilation
 
 tests:
 - sh: ./build/cmp ./external/tests/0-div-mod.imp ./test-framework/build/0.mr
