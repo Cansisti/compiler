@@ -6,7 +6,7 @@
 
 %{
 #include "program.h"
-extern Program* program;
+extern Program* __program;
 
 #include "declarations/variable.h"
 #include "declarations/table.h"
@@ -64,32 +64,32 @@ extern void yyerror(const char*);
 %%
 
 program: DECLARE declarations _BEGIN commands END {
-	program->commands = std::get<Commands*>($4);
+	__program->commands = std::get<Commands*>($4);
 	return 0;
 }| _BEGIN commands END {
-	program->commands = std::get<Commands*>($2);
+	__program->commands = std::get<Commands*>($2);
 	return 0;
 };
 
 declarations: declarations COMMA pidentifier {
-	program->declarations.push_back(new Variable(
+	__program->declarations.push_back(new Variable(
 		std::get<std::string>($3),
 		@3.first_line
 	));
 }| declarations COMMA pidentifier BR_OPEN num COLON num BR_CLOSE {
-	program->declarations.push_back(new Table(
+	__program->declarations.push_back(new Table(
 		std::get<std::string>($3),
 		@3.first_line,
 		std::get<long long>($5),
 		std::get<long long>($7)
 	));
 }| pidentifier {
-	program->declarations.push_back(new Variable(
+	__program->declarations.push_back(new Variable(
 		std::get<std::string>($1),
 		@1.first_line
 	));
 }| pidentifier BR_OPEN num COLON num BR_CLOSE {
-	program->declarations.push_back(new Table(
+	__program->declarations.push_back(new Table(
 		std::get<std::string>($1),
 		@1.first_line,
 		std::get<long long>($3),
@@ -111,21 +111,33 @@ command: identifier ASSIGN expression SEMICOLON {
 		std::get<Expression*>($3)
 	));
 }| IF condition THEN commands ELSE commands ENDIF {
-	$$ = new AnyCommand((void*) nullptr);
+	$$ = new AnyCommand(new NotACommand);
 }| IF condition THEN commands ENDIF {
-	$$ = new AnyCommand((void*) nullptr);
+	$$ = new AnyCommand(new NotACommand);
 }| WHILE condition DO commands ENDWHILE {
-	$$ = new AnyCommand((void*) nullptr);
+	$$ = new AnyCommand(new NotACommand);
 }| DO commands WHILE condition ENDDO {
-	$$ = new AnyCommand((void*) nullptr);
+	$$ = new AnyCommand(new NotACommand);
 }| FOR pidentifier FROM value TO value DO commands ENDFOR {
-	$$ = new AnyCommand((void*) nullptr);
+	auto program = new Program();
+	program->commands = std::get<Commands*>($8);
+	program->declarations.push_back(new Variable(
+		std::get<PId>($2),
+		@2.first_line
+	));
+	$$ = new AnyCommand(new ForLoop(
+		std::get<PId>($2),
+		ForLoop::Modifier::up,
+		std::get<Value*>($4),
+		std::get<Value*>($6),
+		program
+	));
 }| FOR pidentifier FROM value DOWNTO value DO commands ENDFOR {
-	$$ = new AnyCommand((void*) nullptr);
+	$$ = new AnyCommand(new NotACommand);
 }| READ identifier SEMICOLON {
-	$$ = new AnyCommand((void*) nullptr);
+	$$ = new AnyCommand(new NotACommand);
 }| WRITE value SEMICOLON {
-	$$ = new AnyCommand((void*) nullptr);
+	$$ = new AnyCommand(new NotACommand);
 };
 
 expression: value {

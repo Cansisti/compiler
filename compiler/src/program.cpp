@@ -4,7 +4,9 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 
-#define ProgramVisitorConstructor(name) Program* program; name(Program* program): program(program) {}
+#define ProgramVisitorConstructor(name) const Program* program; name(const Program* program): program(program) {}
+
+extern Program* __program;
 
 struct Program::ValueValidateVisitor {
 	ProgramVisitorConstructor(ValueValidateVisitor)
@@ -49,25 +51,36 @@ struct Program::CommandValidateVisitor {
 			std::visit(ExpressionValidateVisitor(program), *assign->expr);
     }
 
-	template<class T>
-	bool operator()(const T t) {
-		// todo
-		// assert(false);
+	bool operator()(const ForLoop* forLoop) {
+		return
+			std::visit(ValueValidateVisitor(program), *forLoop->from) and
+			std::visit(ValueValidateVisitor(program), *forLoop->to) and
+			forLoop->program->validate();
+	}
+
+	bool operator()(const NotACommand* nac) {
 		return true;
 	}
 };
 
-bool Program::validate() {
+bool Program::validate() const {
 	for(auto command: *commands) {
-		if(!std::visit(CommandValidateVisitor(this), *command)){
+		if(!std::visit(CommandValidateVisitor(this), *command)) {
+			spdlog::info("Validation failed for:");
+			spdlog::info(*std::visit(AnyCommandVisitor(), *command));
 			return false;
 		}
 	}
 	return true;
 }
 
-bool Program::checkForPresence(const Identifier* id) {
+bool Program::checkForPresence(const Identifier* id) const { // todo error8 / index of table can be id also and needs to be checked
 	for(auto declaration: declarations) {
+		if(declaration->id == std::visit(Anything::AnyVisitor(), *id).name) {
+			return true;
+		}
+	}
+	for(auto declaration: __program->declarations) {
 		if(declaration->id == std::visit(Anything::AnyVisitor(), *id).name) {
 			return true;
 		}

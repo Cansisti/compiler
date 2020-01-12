@@ -10,12 +10,12 @@ class Program {
 		std::vector<Declaration*> declarations;
 		Commands* commands;
 
-		bool validate();
+		bool validate() const;
 	protected:
 		struct CommandValidateVisitor;
 		struct ExpressionValidateVisitor;
 		struct AnyExpressionValidateVisitor;
 		struct ValueValidateVisitor;
 
-		bool checkForPresence(const Identifier* id);
+		bool checkForPresence(const Identifier* id) const;
 };

@@ -11,7 +11,7 @@ void yyerror(const char* msg) {
 	spdlog::error("{}: {} (near '{}')", yylineno, msg, yytext);
 }
 
-Program* program;
+Program* __program;
 
 int main(int argc, char** argv) {
 	spdlog::set_pattern("%^[%l]%$ %v");
@@ -52,25 +52,25 @@ int main(int argc, char** argv) {
 		return 101;
 	}
 
-	program = new Program();
+	__program = new Program();
 	auto rc = yyparse();
 	if(rc != 0) {
 		spdlog::info("Aborting ({})", rc);
 		return rc;
 	}
 
-	spdlog::info("Declarations: {}", program->declarations.size());
-	for(auto& declaration: program->declarations) {
+	spdlog::info("Declarations: {}", __program->declarations.size());
+	for(auto& declaration: __program->declarations) {
 		spdlog::debug(declaration);
 	}
 
-	spdlog::info("Commands: {}", program->commands->size());
-	for(auto& anyCommand: *program->commands) {
+	spdlog::info("Commands: {}", __program->commands->size());
+	for(auto& anyCommand: *__program->commands) {
 		if(std::visit(AnyCommandVisitor(), *anyCommand)) // todo remove it
 			spdlog::debug(*std::visit(AnyCommandVisitor(), *anyCommand));
 	}
 
-	if(!program->validate()) {
+	if(!__program->validate()) {
 		spdlog::debug("Validation failed");
 		return 102;
 	}

@@ -4,10 +4,18 @@
 #include <assert.h>
 
 #include "commands/assign.h"
+#include "commands/forLoop.h"
+
+class NotACommand: public virtual Command {
+	const std::string describe() const override {
+		return "nac";
+	}
+};
 
 typedef std::variant<
 	Assign*,
-	void*
+	ForLoop*,
+	NotACommand*
 > AnyCommand;
 
 typedef std::vector<AnyCommand*> Commands;
@@ -15,12 +23,5 @@ typedef std::vector<AnyCommand*> Commands;
 struct AnyCommandVisitor {
 	const Command* operator()(const Command* command) const {
 		return command;
-	}
-
-	template<class T>
-	const Command* operator()(const T t) {
-		// todo
-		// assert(false);
-		return nullptr;
 	}
 };
