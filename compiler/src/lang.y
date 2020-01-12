@@ -115,9 +115,21 @@ command: identifier ASSIGN expression SEMICOLON {
 }| IF condition THEN commands ENDIF {
 	$$ = new AnyCommand(new NotACommand);
 }| WHILE condition DO commands ENDWHILE {
-	$$ = new AnyCommand(new NotACommand);
+	auto program = new Program();
+	program->commands = std::get<Commands*>($4);
+	$$ = new AnyCommand(new ConditionalLoop(
+		std::get<Condition*>($2),
+		ConditionalLoop::Modifier::while_do,
+		program
+	));
 }| DO commands WHILE condition ENDDO {
-	$$ = new AnyCommand(new NotACommand);
+	auto program = new Program();
+	program->commands = std::get<Commands*>($2);
+	$$ = new AnyCommand(new ConditionalLoop(
+		std::get<Condition*>($4),
+		ConditionalLoop::Modifier::do_while,
+		program
+	));
 }| FOR pidentifier FROM value TO value DO commands ENDFOR {
 	auto program = new Program();
 	program->commands = std::get<Commands*>($8);
@@ -197,17 +209,53 @@ expression: value {
 };
 
 condition: value EQ value {
-
+	$$ = new Condition(
+		"EQ",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3),
+		Condition::Modifier::equal
+	);
 }| value NEQ value {
-
+	$$ = new Condition(
+		"NEQ",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3),
+		Condition::Modifier::different
+	);
 }| value LE value {
-
+	$$ = new Condition(
+		"LE",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3),
+		Condition::Modifier::less
+	);
 }| value GE value {
-
+	$$ = new Condition(
+		"GE",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3),
+		Condition::Modifier::greater
+	);
 }| value LEQ value {
-
+	$$ = new Condition(
+		"LEQ",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3),
+		Condition::Modifier::less_or_equal
+	);
 }| value GEQ value {
-
+	$$ = new Condition(
+		"GEQ",
+		@2.first_line,
+		std::get<Value*>($1),
+		std::get<Value*>($3),
+		Condition::Modifier::greater_or_equal
+	);
 };
 
 value: num {

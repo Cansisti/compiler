@@ -125,6 +125,12 @@ struct Program::CommandValidateVisitor {
 		return std::visit(ValueValidateVisitor(program), *write->value);
 	}
 
+	bool operator()(const ConditionalLoop* loop) {
+		return
+			program->validateCondition(loop->condition) and
+			loop->program->validate();
+	}
+
 	bool operator()(const NotACommand* nac) {
 		return true;
 	}
@@ -140,6 +146,11 @@ struct Program::SetParentVisitor {
 	void operator()(ForLoop* forLoop) {
 		forLoop->program->parent = const_cast<Program*>(program);
 		forLoop->program->progagateParents();
+	}
+
+	void operator()(ConditionalLoop* loop) {
+		loop->program->parent = const_cast<Program*>(program);
+		loop->program->progagateParents();
 	}
 };
 
@@ -182,4 +193,10 @@ void Program::progagateParents() {
 	for(auto command: *commands) {
 		std::visit(SetParentVisitor(this), *command);
 	}
+}
+
+bool Program::validateCondition(const Condition* condition) const {
+	return
+		std::visit(ValueValidateVisitor(this), *condition->left) and
+		std::visit(ValueValidateVisitor(this), *condition->right);
 }

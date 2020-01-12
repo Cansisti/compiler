@@ -20,7 +20,8 @@ class Program {
 
 		struct SetParentVisitor;
 
-		const Declaration* findDeclaration(const PId id) const;
+		const Declaration* findDeclaration(const PId) const;
+		bool validateCondition(const Condition*) const;
 	private:
 		Program* parent = nullptr;
 };
