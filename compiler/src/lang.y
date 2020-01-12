@@ -1,11 +1,11 @@
 %code requires{
 #include <variant>
-#include "any.h"
+#include "common/any.h"
 #define YYSTYPE Any
 }
 
 %{
-#include "program.h"
+#include "common/program.h"
 extern Program* __program;
 
 #include "declarations/variable.h"

@@ -14,7 +14,7 @@ OBJECTS		:= $(patsubst %.c, %.o, $(OBJECTS))
 OBJECTS		:= $(patsubst ./$(SRC)%, ./$(OBJ)%, $(OBJECTS))
 DEPENDS		:= $(patsubst %.o, %.d, $(OBJECTS))
 
-all: prepare front cmp
+all: prepare cmp
 
 .PHONY: clean
 clean:
@@ -29,6 +29,10 @@ prepare:
 	mkdir -p $(BIN)
 	mkdir -p $(OBJ)
 
+front:
+	bison -d -o $(BIN)/bison.tab.c $(SRC)/lang.y
+	flex -o $(BIN)/lex.yy.c $(SRC)/lang.l
+
 cmp: $(BIN)/bison.tab.c $(BIN)/lex.yy.c $(OBJECTS)
 	$(CXX) $(INCLUDE) $(C_FLAGS) $^ $(OTHER_OBJS) -o ./$(BIN)/$(EXECUTABLE) $(LIBRARIES)
 
@@ -40,19 +44,15 @@ $(OBJ)/%.o: $(SRC)/%.c
 
 -include $(DEPENDS)
 
-$(OBJ)/%.d: $(SRC)/%.cpp
+$(OBJ)/%.d: $(SRC)/%.cpp $(BIN)/bison.tab.h
 	$(CPP) $(C_FLAGS) $(INCLUDE) $< -MM -MT $(@:.d=.o) > $@
 
-$(OBJ)/%.d: $(SRC)/%.c
+$(OBJ)/%.d: $(SRC)/%.c $(BIN)/bison.tab.h
 	$(CPP) $(C_FLAGS) $(INCLUDE) $< -MM -MT $(@:.d=.o) > $@
 
 $(BIN)/lex.yy.c: front
 $(BIN)/bison.tab.c: front
 $(BIN)/bison.tab.h: front
-
-front:
-	bison -d -o $(BIN)/bison.tab.c $(SRC)/lang.y
-	flex -o $(BIN)/lex.yy.c $(SRC)/lang.l
 
 run:
 	python3 ./tests/_runner.py ./external/tests

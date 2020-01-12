@@ -1,6 +1,6 @@
 #pragma once
-#include "command.h"
-#include "value.h"
+#include "common/command.h"
+#include "common/value.h"
 
 class Write: public virtual Command {
 	friend class Program;

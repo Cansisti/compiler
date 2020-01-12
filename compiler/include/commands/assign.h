@@ -1,7 +1,7 @@
 #pragma once
-#include "command.h"
-#include "identifier.h"
-#include "expression.h"
+#include "common/command.h"
+#include "common/identifier.h"
+#include "common/expression.h"
 
 class Assign: public virtual Command {
 	friend class Program;

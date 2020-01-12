@@ -1,6 +1,6 @@
 #pragma once
-#include "declaration.h"
-#include "anything.h"
+#include "common/declaration.h"
+#include "common/anything.h"
 
 class Table: public Declaration {
 	public:

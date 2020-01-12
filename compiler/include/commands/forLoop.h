@@ -1,7 +1,7 @@
 #pragma once
-#include "command.h"
-#include "identifier.h"
-#include "value.h"
+#include "common/command.h"
+#include "common/identifier.h"
+#include "common/value.h"
 
 class Program;
 

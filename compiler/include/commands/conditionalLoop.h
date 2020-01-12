@@ -1,6 +1,6 @@
 #pragma once
-#include "command.h"
-#include "condition.h"
+#include "common/command.h"
+#include "common/condition.h"
 
 class Program;
 

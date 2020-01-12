@@ -1,5 +1,5 @@
-#include "program.h"
-#include "expression.h"
+#include "common/program.h"
+#include "common/expression.h"
 #include <algorithm>
 #include <spdlog/spdlog.h>
 #include <stdexcept>

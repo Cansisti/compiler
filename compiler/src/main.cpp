@@ -1,7 +1,7 @@
 #include <spdlog/spdlog.h>
 #include <cxxopts.hpp>
 #include "bison.tab.h"
-#include "program.h"
+#include "common/program.h"
 
 extern int yylineno;
 extern char* yytext;

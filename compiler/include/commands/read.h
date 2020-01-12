@@ -1,6 +1,6 @@
 #pragma once
-#include "command.h"
-#include "identifier.h"
+#include "common/command.h"
+#include "common/identifier.h"
 
 class Read: public virtual Command {
 	friend class Program;
