@@ -8,12 +8,7 @@
 #include "commands/read.h"
 #include "commands/write.h"
 #include "commands/conditionalLoop.h"
-
-class NotACommand: public virtual Command {
-	const std::string describe() const override {
-		return "nac";
-	}
-};
+#include "commands/ifStatement.h"
 
 typedef std::variant<
 	Assign*,
@@ -21,7 +16,7 @@ typedef std::variant<
 	Read*,
 	Write*,
 	ConditionalLoop*,
-	NotACommand*
+	IfStatement*
 > AnyCommand;
 
 typedef std::vector<AnyCommand*> Commands;

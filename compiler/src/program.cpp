@@ -131,8 +131,11 @@ struct Program::CommandValidateVisitor {
 			loop->program->validate();
 	}
 
-	bool operator()(const NotACommand* nac) {
-		return true;
+	bool operator()(const IfStatement* ifs) {
+		return
+			program->validateCondition(ifs->condition) and
+			ifs->positive->validate() and
+			(ifs->negative ? ifs->negative->validate() : true);
 	}
 };
 
@@ -151,6 +154,15 @@ struct Program::SetParentVisitor {
 	void operator()(ConditionalLoop* loop) {
 		loop->program->parent = const_cast<Program*>(program);
 		loop->program->progagateParents();
+	}
+
+	void operator()(IfStatement* ifs) {
+		ifs->positive->parent = const_cast<Program*>(program);
+		ifs->positive->progagateParents();
+		if(ifs->negative) {
+			ifs->negative->parent = const_cast<Program*>(program);
+			ifs->negative->progagateParents();
+		}
 	}
 };
 

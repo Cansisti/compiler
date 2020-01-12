@@ -111,9 +111,23 @@ command: identifier ASSIGN expression SEMICOLON {
 		std::get<Expression*>($3)
 	));
 }| IF condition THEN commands ELSE commands ENDIF {
-	$$ = new AnyCommand(new NotACommand);
+	auto positive = new Program();
+	positive->commands = std::get<Commands*>($4);
+	auto negative = new Program();
+	negative->commands = std::get<Commands*>($6);
+	$$ = new AnyCommand(new IfStatement(
+		std::get<Condition*>($2),
+		positive,
+		negative
+	));
 }| IF condition THEN commands ENDIF {
-	$$ = new AnyCommand(new NotACommand);
+	auto positive = new Program();
+	positive->commands = std::get<Commands*>($4);
+	$$ = new AnyCommand(new IfStatement(
+		std::get<Condition*>($2),
+		positive,
+		nullptr
+	));
 }| WHILE condition DO commands ENDWHILE {
 	auto program = new Program();
 	program->commands = std::get<Commands*>($4);
