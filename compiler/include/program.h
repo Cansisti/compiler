@@ -2,22 +2,13 @@
 #include <vector>
 #include <variant>
 #include "declaration.h"
-#include "commands/assign.h"
+#include "anyCommand.h"
 
 class Program {
 	public:
-		typedef std::variant<
-			Assign
-		> AnyCommand;
-
-		struct AnyCommandVisitor {
-			const Command& operator()(const Command& command) const {
-				return command;
-			}
-		};
 
 		std::vector<Declaration*> declarations;
-		std::vector<AnyCommand> commands;
+		Commands* commands;
 
 		bool validate();
 	protected:

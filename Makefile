@@ -4,7 +4,7 @@ BIN			:= build
 SRC			:= compiler/src
 OBJ			:= build/obj
 
-INCLUDE		:= -Icompiler/include -Ispdlog/include -I$(BIN)
+INCLUDE		:= -Icompiler/include -Ispdlog/include -I$(BIN) -Icxxopts/include
 LIBRARIES	:= -ll
 EXECUTABLE	:= cmp
 

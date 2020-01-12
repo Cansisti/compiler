@@ -6,6 +6,7 @@
 #include "value.h"
 #include "expression.h"
 #include "condition.h"
+#include "anyCommand.h"
 
 typedef std::variant<
 	PId,
@@ -13,5 +14,7 @@ typedef std::variant<
 	Identifier*,
 	Value*,
 	Expression*,
-	Condition*
+	Condition*,
+	AnyCommand*,
+	Commands*
 > Any;

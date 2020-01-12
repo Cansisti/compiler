@@ -1,9 +1,11 @@
 #include <spdlog/spdlog.h>
+#include <cxxopts.hpp>
 #include "bison.tab.h"
 #include "program.h"
 
 extern int yylineno;
 extern char* yytext;
+extern FILE* yyin;
 
 void yyerror(const char* msg) {
 	spdlog::error("{}: {} (near '{}')", yylineno, msg, yytext);
@@ -13,8 +15,43 @@ Program* program;
 
 int main(int argc, char** argv) {
 	spdlog::set_pattern("%^[%l]%$ %v");
-	spdlog::set_level(spdlog::level::debug);
     spdlog::enable_backtrace(32);
+
+	cxxopts::Options options("cmp", "JFTT2019 Compiler");
+	options.add_options()
+		("input", "input code", cxxopts::value<std::string>())
+		("output", "output program", cxxopts::value<std::string>())
+		("v,verbose", "be verbose")
+		("d,debug", "be even more verbose");
+
+	options.parse_positional({"input", "output"});
+	auto result = options.parse(argc, argv);
+
+	if(result["debug"].as<bool>()) {
+		spdlog::warn("Setting log level to debug");
+		spdlog::set_level(spdlog::level::debug);
+	}
+	else if(result["verbose"].as<bool>()) {
+		spdlog::warn("Setting log level to verbose (info)");
+		spdlog::set_level(spdlog::level::info);
+	}
+	else {
+		spdlog::set_level(spdlog::level::warn);
+	}
+
+	if(!result.count("input") or !result.count("output")) {
+		spdlog::critical("No input or output provided");
+		return 100;
+	}
+
+	const std::string file = result["input"].as<std::string>();
+	spdlog::debug("Input file: {}", file);
+	yyin = fopen(file.c_str(), "r");
+	if(!yyin) {
+		spdlog::critical("Could not open {}", file);
+		return 101;
+	}
+
 	program = new Program();
 	auto rc = yyparse();
 	if(rc != 0) {
@@ -27,14 +64,15 @@ int main(int argc, char** argv) {
 		spdlog::debug(declaration);
 	}
 
-	spdlog::info("Commands: {}", program->commands.size());
-	for(auto& anyCommand: program->commands) {
-		spdlog::debug(std::visit(Program::AnyCommandVisitor(), anyCommand));
+	spdlog::info("Commands: {}", program->commands->size());
+	for(auto& anyCommand: *program->commands) {
+		if(std::visit(AnyCommandVisitor(), *anyCommand)) // todo remove it
+			spdlog::debug(*std::visit(AnyCommandVisitor(), *anyCommand));
 	}
 
 	if(!program->validate()) {
 		spdlog::debug("Validation failed");
-		return 1;
+		return 102;
 	}
 
 	return 0;

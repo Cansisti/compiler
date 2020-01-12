@@ -43,16 +43,23 @@ struct Program::ExpressionValidateVisitor {
 struct Program::CommandValidateVisitor {
 	ProgramVisitorConstructor(CommandValidateVisitor)
 
-	bool operator()(const Assign &assign) {
+	bool operator()(const Assign* assign) {
 		return
-			program->checkForPresence(assign.id) and
-			std::visit(ExpressionValidateVisitor(program), *assign.expr);
+			program->checkForPresence(assign->id) and
+			std::visit(ExpressionValidateVisitor(program), *assign->expr);
     }
+
+	template<class T>
+	bool operator()(const T t) {
+		// todo
+		// assert(false);
+		return true;
+	}
 };
 
 bool Program::validate() {
-	for(auto command: commands) {
-		if(!std::visit(CommandValidateVisitor(this), command)){
+	for(auto command: *commands) {
+		if(!std::visit(CommandValidateVisitor(this), *command)){
 			return false;
 		}
 	}
@@ -61,11 +68,11 @@ bool Program::validate() {
 
 bool Program::checkForPresence(const Identifier* id) {
 	for(auto declaration: declarations) {
-		if(declaration->id == std::visit(Anything::AnyVisitor(), *id).name) { // todo identifier operator==
+		if(declaration->id == std::visit(Anything::AnyVisitor(), *id).name) {
 			return true;
 		}
 	}
-	spdlog::error("Unknown variable '{}'", std::visit(Anything::AnyVisitor(), *id).name);
-	spdlog::error("Required from {}", std::visit(Anything::AnyVisitor(), *id).line);
+	auto& theId = std::visit(Anything::AnyVisitor(), *id);
+	spdlog::error("{}: unknown variable '{}'", theId.line, theId.name);
 	return false;
 }

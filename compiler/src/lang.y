@@ -64,8 +64,10 @@ extern void yyerror(const char*);
 %%
 
 program: DECLARE declarations _BEGIN commands END {
+	program->commands = std::get<Commands*>($4);
 	return 0;
 }| _BEGIN commands END {
+	program->commands = std::get<Commands*>($2);
 	return 0;
 };
 
@@ -95,28 +97,35 @@ declarations: declarations COMMA pidentifier {
 	));
 };
 
-commands: commands command | command;
+commands: commands command {
+	auto cmds = std::get<Commands*>($1);
+	cmds->push_back(std::get<AnyCommand*>($2));
+}| command {
+	auto cmds = new Commands;
+	cmds->push_back(std::get<AnyCommand*>($1));
+	$$ = cmds;
+};
 command: identifier ASSIGN expression SEMICOLON {
-	program->commands.push_back(Assign(
+	$$ = new AnyCommand(new Assign(
 		std::get<Identifier*>($1),
 		std::get<Expression*>($3)
 	));
 }| IF condition THEN commands ELSE commands ENDIF {
-
+	$$ = new AnyCommand((void*) nullptr);
 }| IF condition THEN commands ENDIF {
-
+	$$ = new AnyCommand((void*) nullptr);
 }| WHILE condition DO commands ENDWHILE {
-
+	$$ = new AnyCommand((void*) nullptr);
 }| DO commands WHILE condition ENDDO {
-
+	$$ = new AnyCommand((void*) nullptr);
 }| FOR pidentifier FROM value TO value DO commands ENDFOR {
-
+	$$ = new AnyCommand((void*) nullptr);
 }| FOR pidentifier FROM value DOWNTO value DO commands ENDFOR {
-
+	$$ = new AnyCommand((void*) nullptr);
 }| READ identifier SEMICOLON {
-
+	$$ = new AnyCommand((void*) nullptr);
 }| WRITE value SEMICOLON {
-
+	$$ = new AnyCommand((void*) nullptr);
 };
 
 expression: value {
