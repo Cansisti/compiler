@@ -2,3 +2,5 @@ title: All tests
 
 tests:
   - include: ./test-framework/errors.yaml
+  - include: ./test-framework/programs-compiling.yaml
+  - include: ./test-framework/tests.yaml

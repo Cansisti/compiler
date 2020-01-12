@@ -1,5 +1,5 @@
-title: Errors test
-output: ./test-framework/errors-out.yaml
+title: Errors tests
+output: ./test-framework/out/errors-out.yaml
 suite: errors
 
 tests:
