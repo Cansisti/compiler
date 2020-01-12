@@ -4,10 +4,6 @@ suite: programs-compiling
 
 tests:
 - sh: ./build/cmp ./external/programs/p1.imp ./test-framework/build/p1.mr
-  exit: 0
 - sh: ./build/cmp ./external/programs/program0.imp ./test-framework/build/program0.mr
-  exit: 0
 - sh: ./build/cmp ./external/programs/program1.imp ./test-framework/build/program1.mr
-  exit: 0
 - sh: ./build/cmp ./external/programs/program2.imp ./test-framework/build/program2.mr
-  exit: 0

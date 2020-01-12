@@ -117,6 +117,10 @@ struct Program::CommandValidateVisitor {
 			forLoop->program->validate();
 	}
 
+	bool operator()(const Read* read) {
+		return std::visit(IdentifierValidateVisitor(program), *read->id);
+	}
+
 	bool operator()(const NotACommand* nac) {
 		return true;
 	}

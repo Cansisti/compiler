@@ -4,22 +4,12 @@ suite: tests
 
 tests:
 - sh: ./build/cmp ./external/tests/0-div-mod.imp ./test-framework/build/0.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/1-numbers.imp ./test-framework/build/1.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/2-fib.imp ./test-framework/build/2.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/3-fib-factorial.imp ./test-framework/build/3.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/4-factorial.imp ./test-framework/build/4.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/5-tab.imp ./test-framework/build/5.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/6-mod-mult.imp ./test-framework/build/6.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/7-loopiii.imp ./test-framework/build/7.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/8-for.imp ./test-framework/build/8.mr
-  exit: 0
 - sh: ./build/cmp ./external/tests/9-sort.imp ./test-framework/build/9.mr
-  exit: 0

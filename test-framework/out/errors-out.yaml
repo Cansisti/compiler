@@ -10,6 +10,9 @@ tests:
 - sh: ./build/cmp ./external/programs/error1.imp -
   stdout: |
     [error] 3: redeclaration of a
+- sh: ./build/cmp ./external/programs/error2.imp -
+  stdout: |
+    [error] 5: unknown variable 'a'
 - sh: ./build/cmp ./external/programs/error4.imp -
   stdout: |
     [error] 3: syntax error (near '1')

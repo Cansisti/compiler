@@ -135,7 +135,9 @@ command: identifier ASSIGN expression SEMICOLON {
 }| FOR pidentifier FROM value DOWNTO value DO commands ENDFOR {
 	$$ = new AnyCommand(new NotACommand);
 }| READ identifier SEMICOLON {
-	$$ = new AnyCommand(new NotACommand);
+	$$ = new AnyCommand(new Read(
+		std::get<Identifier*>($2)
+	));
 }| WRITE value SEMICOLON {
 	$$ = new AnyCommand(new NotACommand);
 };

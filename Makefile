@@ -55,11 +55,17 @@ front:
 	flex -o $(BIN)/lex.yy.c $(SRC)/lang.l
 
 run:
-	python3 ./test-framework/test_runner.py ./external/tests
-	python3 ./test-framework/test_runner.py ./external/programs
+	python3 ./test-framework/_runner.py ./external/tests
+	python3 ./test-framework/_runner.py ./external/programs
 
 test:
 	pbbt ./test-framework/all.yaml
 
 test/errors:
 	pbbt ./test-framework/errors.yaml
+
+test/compiling:
+	pbbt ./test-framework/programs-compiling.yaml
+
+test/tests:
+	pbbt ./test-framework/tests.yaml
