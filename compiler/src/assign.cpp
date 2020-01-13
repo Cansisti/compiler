@@ -43,4 +43,8 @@ void Assign::translate(const Program* program, Intercode* code) const {
 	auto location = std::visit(IdentifierTranslateVisitor(program, code), *id);
 	auto what = std::visit(ExpressionTranslateVisitor(program, code), *expr);
 	code->add(Intercode::Operation::assign, location.a0, location.a1, what.a0);
-};
+}
+
+bool Assign::modifies(PId p) const {
+	return std::visit(Anything::AnyVisitor(), *id).name == p;
+}

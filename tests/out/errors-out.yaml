@@ -31,3 +31,7 @@ tests:
 - sh: ./build/cmp ./external/programs/error8.imp -
   stdout: |
     [error] 8: unknown variable 'i'
+- sh: ./build/cmp ./tests/programs/test-ValidateCounterViolationVisitor.imp -
+  stdout: |
+    [error] Loop counter 'i' violation:
+    [error] assignment to 'i' at 3

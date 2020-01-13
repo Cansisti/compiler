@@ -19,3 +19,7 @@ void Read::translate(const Program* program, Intercode* code) const {
 	auto ass = std::visit(IdentifierTranslateVisitor(program, code), *id);
 	code->add(Intercode::Operation::get, ass.a0, ass.a1, ass.a2);
 };
+
+bool Read::modifies(PId p) const {
+	return std::visit(Anything::AnyVisitor(), *id).name == p;
+}

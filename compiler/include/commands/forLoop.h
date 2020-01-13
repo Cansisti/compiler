@@ -13,6 +13,7 @@ class ForLoop: public virtual Command {
 
 		ForLoop(PId, ForLoop::Modifier, Value*, Value*, Program*);
 		virtual const std::string describe() const override;
+		bool validateCounterViolation() const;
 		virtual void translate(const Program*, Intercode*) const override;
 	protected:
 		const PId counter;
@@ -20,4 +21,6 @@ class ForLoop: public virtual Command {
 		const Value* from;
 		const Value* to;
 		Program* program;
+
+		struct ValidateCounterViolationVisitor;
 };

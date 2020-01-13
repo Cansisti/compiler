@@ -124,7 +124,8 @@ struct Program::CommandValidateVisitor {
 		return
 			std::visit(ValueValidateVisitor(program), *forLoop->from) and
 			std::visit(ValueValidateVisitor(program), *forLoop->to) and
-			forLoop->program->validate();
+			forLoop->program->validate() and
+			forLoop->validateCounterViolation();
 	}
 
 	bool operator()(const Read* read) {
