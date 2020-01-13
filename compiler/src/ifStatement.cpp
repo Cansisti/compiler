@@ -21,11 +21,11 @@ void IfStatement::translate(const Program* program, Intercode* code) const {
 	auto end_label = code->generateLabel();
 	auto cndtr = condition->translate(program, code);
 	code->add(cndtr.op, skip_label);
-	if(!cndtr.swap) positive->translate(code);
+	if(!cndtr.positive) positive->translate(code);
 	else if(negative) negative->translate(code);
 	code->add(Intercode::Operation::jump, end_label);
 	code->putLabel(skip_label);
-	if(cndtr.swap) positive->translate(code);
+	if(cndtr.positive) positive->translate(code);
 	else if(negative) negative->translate(code);
 	code->putLabel(end_label);
 };

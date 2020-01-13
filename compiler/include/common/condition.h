@@ -17,8 +17,13 @@ class Condition: public virtual Anything {
 			greater_or_equal
 		};
 
+		/**
+		 * If @positive then @op is a jump that will be executed for positive condition.
+		 * 
+		 * In other words, @positive answers the question: "Is @op a jump to a positive condition?".
+		 **/
 		struct Translation {
-			bool swap;
+			bool positive;
 			Intercode::Operation op;
 		};
 
