@@ -9,6 +9,8 @@ struct Addresses {
 	size_t a2 = Intercode::not_an_addr;
 };
 
+size_t getValueAddress(const Program*, Intercode*, const Value*);
+
 struct IdentifierTranslateVisitor {
 	TranslateVisitorConstructor(IdentifierTranslateVisitor)
 

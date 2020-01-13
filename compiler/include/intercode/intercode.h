@@ -26,17 +26,24 @@ class Intercode {
 			jump_neg,
 			jump_zero,
 
-			remember
+			remember,
+			label
 		};
 
 		static const size_t not_an_addr;
 		static const size_t temp_addr;
 
 		Intercode();
+		
 		void declare(size_t, Address::Type, size_t = 1);
 		void constant(size_t, long long);
+
 		void add(Intercode::Operation, size_t = not_an_addr, size_t = not_an_addr, size_t = not_an_addr);
+		size_t generateLabel();
+		void putLabel(size_t l);
 	protected:
+		size_t next_label = 0;
+
 		struct Command {
 			Operation op;
 			Address* a0 = nullptr;

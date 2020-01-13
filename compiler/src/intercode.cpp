@@ -20,6 +20,14 @@ void Intercode::add(Intercode::Operation op, size_t s0, size_t s1, size_t s2) {
 	});
 }
 
+size_t Intercode::generateLabel() {
+	return next_label++;
+}
+
+void Intercode::putLabel(size_t l) {
+	add(Intercode::Operation::label, l);
+}
+
 void Intercode::constant(size_t id, long long value) {
 	auto addr = new Address(Address::Type::constant, 1);
 	addr->value = value;

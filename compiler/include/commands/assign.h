@@ -15,6 +15,4 @@ class Assign: public virtual Command {
 
 		struct ExpressionTranslateVisitor;
 		struct AnyExpressionTranslateVisitor;
-
-		static size_t getValueAddress(const Program*, Intercode*, const Value*);
 };
