@@ -1,4 +1,5 @@
 #include "intercode/intercode.h"
+#include "common/declaration.h"
 
 const size_t Intercode::not_an_addr = 0;
 const size_t Intercode::temp_addr = -1;
@@ -28,8 +29,10 @@ void Intercode::putLabel(size_t l) {
 	add(Intercode::Operation::label, l);
 }
 
-void Intercode::constant(size_t id, long long value) {
+size_t Intercode::constant(long long value) {
+	auto id = Declaration::next_address++;
 	auto addr = new Address(Address::Type::constant, 1);
 	addr->value = value;
 	vars[id] = addr;
+	return id;
 }

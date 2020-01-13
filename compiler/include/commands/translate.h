@@ -15,8 +15,7 @@ struct IdentifierTranslateVisitor {
 	TranslateVisitorConstructor(IdentifierTranslateVisitor)
 
 	Addresses operator()(const ConstantTableIdentifier& id) {
-		auto addr = Declaration::next_address++;
-		code->constant(addr, id.n);
+		auto addr = code->constant(id.n);
 		return {
 			program->findDeclaration(id.name)->address,
 			addr
@@ -43,8 +42,7 @@ struct ValueTranslateVisitor {
 	}
 
 	Addresses operator()(const Num& num) {
-		auto addr = Declaration::next_address++;
-		code->constant(addr, num);
+		auto addr = code->constant(num);
 		return { addr };
 	}
 };

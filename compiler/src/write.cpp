@@ -17,5 +17,5 @@ const std::string Write::describe() const {
 
 void Write::translate(const Program* program, Intercode* code) const {
 	auto ass = std::visit(ValueTranslateVisitor(program, code), *value);
-	code->add(Intercode::Operation::put, ass.a0, ass.a1, ass.a2);
+	code->add(Intercode::Operation::put, ass.a0, ass.a1);
 };

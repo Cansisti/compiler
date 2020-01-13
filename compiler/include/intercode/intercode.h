@@ -36,7 +36,7 @@ class Intercode {
 		Intercode();
 		
 		void declare(size_t, Address::Type, size_t = 1);
-		void constant(size_t, long long);
+		size_t constant( long long);
 
 		void add(Intercode::Operation, size_t = not_an_addr, size_t = not_an_addr, size_t = not_an_addr);
 		size_t generateLabel();

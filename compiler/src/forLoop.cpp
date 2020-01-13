@@ -2,6 +2,7 @@
 #include <sstream>
 #include <spdlog/spdlog.h>
 #include "common/program.h"
+#include "commands/translate.h"
 
 ForLoop::ForLoop(PId counter, ForLoop::Modifier modifier, Value* from, Value* to, Program* program) :
 	counter(counter),
@@ -57,6 +58,20 @@ bool ForLoop::validateCounterViolation(PId counter) const {
 	return true;
 }
 
-void ForLoop::translate(const Program*, Intercode*) const {
-	
+void ForLoop::translate(const Program* program, Intercode* code) const {
+	auto c = this->program->findDeclaration(counter)->address;
+	auto f = getValueAddress(program, code, from);
+	code->add(Intercode::Operation::assign, c, Intercode::not_an_addr, f);
+	auto t = Declaration::next_address++;
+	code->declare(t, Address::Type::variable);
+	code->add(Intercode::Operation::assign, t, Intercode::not_an_addr, getValueAddress(program, code, to));
+	auto begin_label = code->generateLabel();
+	auto end_label = code->generateLabel();
+	code->putLabel(begin_label);
+	code->add(Intercode::Operation::sub, c, Intercode::not_an_addr, t);
+	code->add(Intercode::Operation::jump_zero, end_label);
+	this->program->translate(code);
+	code->add(modifier == Modifier::up ? Intercode::Operation::inc : Intercode::Operation::dec, c);
+	code->add(Intercode::Operation::jump, begin_label);
+	code->putLabel(end_label);
 };
