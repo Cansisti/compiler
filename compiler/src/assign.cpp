@@ -14,3 +14,7 @@ const std::string Assign::describe() const {
 	ss << "assignment to '" << identifier.name << "' at " << identifier.line;
 	return ss.str();
 }
+
+void Assign::translate(const Program*, Intercode*) const {
+	
+};

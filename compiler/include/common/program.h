@@ -3,6 +3,7 @@
 #include <variant>
 #include "declaration.h"
 #include "anyCommand.h"
+#include "intercode/intercode.h"
 
 class Program {
 	public:
@@ -11,6 +12,8 @@ class Program {
 
 		void progagateParents();
 		bool validate() const;
+		void translate(Intercode*) const;
+		Declaration* findDeclaration(const PId) const;
 	protected:
 		struct CommandValidateVisitor;
 		struct ExpressionValidateVisitor;
@@ -20,7 +23,6 @@ class Program {
 
 		struct SetParentVisitor;
 
-		Declaration* findDeclaration(const PId) const;
 		bool validateCondition(const Condition*) const;
 		void markInitiated(const PId) const;
 	private:

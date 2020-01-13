@@ -2,8 +2,6 @@
 #include "common/command.h"
 #include "common/condition.h"
 
-class Program;
-
 class ConditionalLoop: public virtual Command {
 	friend class Program;
 	public:
@@ -14,6 +12,7 @@ class ConditionalLoop: public virtual Command {
 
 		ConditionalLoop(Condition*, ConditionalLoop::Modifier, Program*);
 		virtual const std::string describe() const override;
+		virtual void translate(const Program*, Intercode*) const override;
 	protected:
 		const Condition* condition;
 		const Modifier modifier;

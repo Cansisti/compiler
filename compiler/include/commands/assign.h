@@ -8,6 +8,7 @@ class Assign: public virtual Command {
 	public:
 		Assign(Identifier*, Expression*);
 		virtual const std::string describe() const override;
+		virtual void translate(const Program*, Intercode*) const override;
 	protected:
 		const Identifier* id;
 		const Expression* expr;

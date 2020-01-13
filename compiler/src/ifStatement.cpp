@@ -14,3 +14,7 @@ const std::string IfStatement::describe() const {
 	ss << "if statement " << " on " << condition;
 	return ss.str();
 }
+
+void IfStatement::translate(const Program*, Intercode*) const {
+	
+};

@@ -14,3 +14,7 @@ const std::string ConditionalLoop::describe() const {
 	ss << "loop " << (modifier == Modifier::do_while ? "do-while" : "while-do") << " on " << condition;
 	return ss.str();
 }
+
+void ConditionalLoop::translate(const Program*, Intercode*) const {
+	
+};

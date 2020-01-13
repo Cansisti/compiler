@@ -8,6 +8,9 @@ class Declaration {
 		PId id;
 		size_t line;
 
+		const size_t address;
+		static size_t next_address;
+
 		virtual const int type() const = 0;
 		virtual const std::string type_string() const = 0;
 		virtual bool validate() const = 0;
@@ -19,4 +22,5 @@ class Declaration {
 		}
 
 		bool initiated;
+		Declaration();
 };

@@ -16,3 +16,7 @@ const std::string ForLoop::describe() const {
 	ss << "for loop " << (modifier == Modifier::up ? "up" : "down") << " on " << counter;
 	return ss.str();
 }
+
+void ForLoop::translate(const Program*, Intercode*) const {
+	
+};

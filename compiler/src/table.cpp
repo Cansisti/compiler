@@ -30,3 +30,7 @@ bool Table::validate() const {
 	}
 	return true;
 }
+
+size_t Table::getSize() const {
+	return to - from + 1;
+}

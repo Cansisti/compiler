@@ -7,6 +7,7 @@ class Write: public virtual Command {
 	public:
 		Write(Value*, size_t line);
 		virtual const std::string describe() const override;
+		virtual void translate(const Program*, Intercode*) const override;
 	protected:
 		const Value* value;
 		const size_t line;

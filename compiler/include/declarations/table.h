@@ -9,6 +9,7 @@ class Table: public Declaration {
 		virtual const std::string type_string() const override;
 		virtual bool validate() const override;
 		bool checkRange(Num n) const;
+		size_t getSize() const;
 	private:
 		Num from;
 		Num to;

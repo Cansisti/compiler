@@ -226,3 +226,21 @@ bool Program::validateCondition(const Condition* condition) const {
 		std::visit(ValueValidateVisitor(this), *condition->left) and
 		std::visit(ValueValidateVisitor(this), *condition->right);
 }
+
+void Program::translate(Intercode* code) const {
+	for(auto declaration: declarations) {
+		switch(declaration->type()) {
+			case 0: {
+				code->declare(declaration->address, Address::Type::variable);
+				break;
+			}
+			case 1: {
+				auto table = dynamic_cast<const Table*>(declaration);
+				code->declare(table->address, Address::Type::table, table->getSize());
+			}
+		}
+	}
+	for(auto command: *commands) {
+		std::visit(AnyCommandVisitor(), *command)->translate(this, code);
+	}
+}

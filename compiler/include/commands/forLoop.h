@@ -3,8 +3,6 @@
 #include "common/identifier.h"
 #include "common/value.h"
 
-class Program;
-
 class ForLoop: public virtual Command {
 	friend class Program;
 	public:
@@ -15,6 +13,7 @@ class ForLoop: public virtual Command {
 
 		ForLoop(PId, ForLoop::Modifier, Value*, Value*, Program*);
 		virtual const std::string describe() const override;
+		virtual void translate(const Program*, Intercode*) const override;
 	protected:
 		const PId counter;
 		const Modifier modifier;

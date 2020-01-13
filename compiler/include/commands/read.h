@@ -7,6 +7,7 @@ class Read: public virtual Command {
 	public:
 		Read(Identifier*);
 		virtual const std::string describe() const override;
+		virtual void translate(const Program*, Intercode*) const override;
 	protected:
 		const Identifier* id;
 };
