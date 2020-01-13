@@ -16,6 +16,8 @@ class ForLoop: public virtual Command {
 		bool validateCounterViolation() const;
 		virtual void translate(const Program*, Intercode*) const override;
 	protected:
+		bool validateCounterViolation(PId) const;
+
 		const PId counter;
 		const Modifier modifier;
 		const Value* from;

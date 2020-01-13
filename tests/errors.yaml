@@ -21,5 +21,7 @@ tests:
   exit: 102
 - sh: ./build/cmp ./external/programs/error8.imp -
   exit: 102
-- sh: ./build/cmp ./tests/programs/test-ValidateCounterViolationVisitor.imp -
+- sh: ./build/cmp ./tests/programs/test-ValidateCounterViolationVisitor-1.imp -
+  exit: 102
+- sh: ./build/cmp ./tests/programs/test-ValidateCounterViolationVisitor-2.imp -
   exit: 102

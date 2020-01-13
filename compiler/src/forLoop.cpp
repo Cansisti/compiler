@@ -36,9 +36,17 @@ struct ForLoop::ValidateCounterViolationVisitor {
 	bool operator()(const Read* read) const {
 		return not read->modifies(counter);
 	}
+
+	bool operator()(const ForLoop* loop) const {
+		return loop->validateCounterViolation(counter);
+	}
 };
 
 bool ForLoop::validateCounterViolation() const {
+	return validateCounterViolation(counter);
+}
+
+bool ForLoop::validateCounterViolation(PId counter) const {
 	for(auto command: *program->commands) {
 		if(!std::visit(ValidateCounterViolationVisitor(counter), *command)) {
 			spdlog::error("Loop counter '{}' violation:", counter);
