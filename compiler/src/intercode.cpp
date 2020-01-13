@@ -1,7 +1,10 @@
 #include "intercode/intercode.h"
 
+const size_t Intercode::not_an_addr = 0;
+const size_t Intercode::temp_addr = -1;
+
 Intercode::Intercode() {
-	vars[0] = nullptr;
+	vars[not_an_addr] = nullptr;
 }
 
 void Intercode::declare(size_t id, Address::Type type, size_t size) {

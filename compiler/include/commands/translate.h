@@ -4,9 +4,9 @@
 #define TranslateVisitorConstructor(name) const Program* program; Intercode* code; name(const Program* program, Intercode* code): program(program), code(code) {}
 
 struct Addresses {
-	size_t a0 = 0;
-	size_t a1 = 0;
-	size_t a2 = 0;
+	size_t a0 = Intercode::not_an_addr;
+	size_t a1 = Intercode::not_an_addr;
+	size_t a2 = Intercode::not_an_addr;
 };
 
 struct IdentifierTranslateVisitor {
@@ -29,7 +29,7 @@ struct IdentifierTranslateVisitor {
 	}
 
 	Addresses operator()(const VariableIdentifier& id) {
-		return {program->findDeclaration(id.name)->address};
+		return { program->findDeclaration(id.name)->address };
 	}
 };
 
@@ -43,6 +43,6 @@ struct ValueTranslateVisitor {
 	Addresses operator()(const Num& num) {
 		auto addr = Declaration::next_address++;
 		code->constant(addr, num);
-		return {addr};
+		return { addr };
 	}
 };

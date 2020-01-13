@@ -24,13 +24,18 @@ class Intercode {
 			jump,
 			jump_pos,
 			jump_neg,
-			jump_zero
+			jump_zero,
+
+			remember
 		};
+
+		static const size_t not_an_addr;
+		static const size_t temp_addr;
 
 		Intercode();
 		void declare(size_t, Address::Type, size_t = 1);
 		void constant(size_t, long long);
-		void add(Intercode::Operation, size_t = 0, size_t = 0, size_t = 0);
+		void add(Intercode::Operation, size_t = not_an_addr, size_t = not_an_addr, size_t = not_an_addr);
 	protected:
 		struct Command {
 			Operation op;

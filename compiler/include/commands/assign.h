@@ -12,4 +12,9 @@ class Assign: public virtual Command {
 	protected:
 		const Identifier* id;
 		const Expression* expr;
+
+		struct ExpressionTranslateVisitor;
+		struct AnyExpressionTranslateVisitor;
+
+		static size_t getValueAddress(const Program*, Intercode*, const Value*);
 };

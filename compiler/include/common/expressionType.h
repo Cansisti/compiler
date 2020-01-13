@@ -2,6 +2,7 @@
 #include <variant>
 #include "anything.h"
 #include "value.h"
+#include "intercode/intercode.h"
 
 class ExpressionType: public Anything {
 	public:
@@ -13,4 +14,6 @@ class ExpressionType: public Anything {
 
 		const Value* left;
 		const Value* right;
+
+		virtual Intercode::Operation icop() const = 0;
 };

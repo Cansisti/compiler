@@ -76,5 +76,10 @@ int main(int argc, char** argv) {
 		return 102;
 	}
 
+	// TODO Validate: no change of counter in for loop
+
+	Intercode* ic = new Intercode();
+	__program->translate(ic);
+
 	return 0;
 }
