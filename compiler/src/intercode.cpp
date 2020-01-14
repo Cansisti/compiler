@@ -1,11 +1,13 @@
 #include "intercode/intercode.h"
 #include "common/declaration.h"
+#include <assert.h>
 
 const size_t Intercode::not_an_addr = 0;
 const size_t Intercode::temp_addr = -1;
 
 Intercode::Intercode() {
 	vars[not_an_addr] = nullptr;
+	vars[temp_addr] = rt;
 }
 
 void Intercode::declare(size_t id, Address::Type type, size_t size) {
@@ -22,17 +24,206 @@ void Intercode::add(Intercode::Operation op, size_t s0, size_t s1, size_t s2) {
 }
 
 size_t Intercode::generateLabel() {
-	return next_label++;
+	vars[next_label] = new Address(Address::Type::label, 1);
+	return next_label--;
 }
 
 void Intercode::putLabel(size_t l) {
-	add(Intercode::Operation::label, l);
+	assert(vars[l]);
+	add(Operation::label, l);
 }
 
 size_t Intercode::constant(long long value) {
 	auto id = Declaration::next_address++;
-	auto addr = new Address(Address::Type::constant, 1);
-	addr->value = value;
+	auto addr = new Address(Address::Type::constant, 1, value);
 	vars[id] = addr;
 	return id;
+}
+
+void Intercode::translate(Machinecode* code) {
+	for(auto command: commands) {
+		switch(command.op) {
+			case Operation::assign: {
+				code->add(Machinecode::Operation::load, command.a2);
+				code->add(Machinecode::Operation::store, command.a0, command.a1);
+				break;
+			}
+			case Operation::get: {
+				code->add(Machinecode::Operation::get);
+				code->add(Machinecode::Operation::store, command.a0, command.a1);
+				break;
+			}
+			case Operation::put: {
+				code->add(Machinecode::Operation::put);
+				code->add(Machinecode::Operation::store, command.a0, command.a1);
+				break;
+			}
+			case Operation::add : {
+				code->add(Machinecode::Operation::load, command.a0, command.a1);
+				code->add(Machinecode::Operation::add, command.a2);
+				code->add(Machinecode::Operation::store, rt);
+				break;
+			}
+			case Operation::sub : {
+				code->add(Machinecode::Operation::load, command.a0, command.a1);
+				code->add(Machinecode::Operation::sub, command.a2);
+				code->add(Machinecode::Operation::store, rt);
+				break;
+			}
+			case Operation::mul: {
+				code->add(Machinecode::Operation::load, acc);
+				code->add(Machinecode::Operation::sub, acc);
+				code->add(Machinecode::Operation::store, acc);
+				translateMul(code, command.a0, command.a1, command.a2);
+				code->add(Machinecode::Operation::load, acc);
+				code->add(Machinecode::Operation::store, rt);
+				break;
+			}
+			// div mod TODO
+			case Operation::inc: {
+				code->add(Machinecode::Operation::load, command.a0, command.a1);
+				code->add(Machinecode::Operation::inc);
+				code->add(Machinecode::Operation::store, command.a0, command.a1);
+				break;
+			};
+			case Operation::dec: {
+				code->add(Machinecode::Operation::load, command.a0, command.a1);
+				code->add(Machinecode::Operation::dec);
+				code->add(Machinecode::Operation::store, command.a0, command.a1);
+				break;
+			};
+			case Operation::jump: {
+				code->add(Machinecode::Operation::jump, command.a0);
+				break;
+			}
+			case Operation::jump_pos: {
+				code->add(Machinecode::Operation::jpos, command.a0);
+				break;
+			}
+			case Operation::jump_neg: {
+				code->add(Machinecode::Operation::jneg, command.a0);
+				break;
+			}
+			case Operation::jump_zero: {
+				code->add(Machinecode::Operation::jzero, command.a0);
+				break;
+			}
+			case Operation::remember: {
+				code->add(Machinecode::Operation::load, command.a0, command.a1);
+				code->add(Machinecode::Operation::store, rt);
+				break;
+			}
+			case Operation::label: {
+				code->add(Machinecode::Operation::label, command.a0);
+				break;
+			}
+		}
+	}
+}
+
+void Intercode::translateMul(Machinecode* code, Address* a0, Address* a1, Address* a2) {
+	code->add(Machinecode::Operation::load, a0, a1);
+	code->add(Machinecode::Operation::store, r2);
+
+	code->add(Machinecode::Operation::load, a2);
+	code->add(Machinecode::Operation::store, r4);
+
+	auto loop = generateLabel();
+	auto finish_r2 = generateLabel();
+	auto finish_r4 = generateLabel();
+	auto end = generateLabel();
+
+	code->add(Machinecode::Operation::label, vars[loop]);
+
+	code->add(Machinecode::Operation::load, r4);
+	code->add(Machinecode::Operation::dec);
+	code->add(Machinecode::Operation::jzero, vars[finish_r4]);
+
+	code->add(Machinecode::Operation::load, r2);
+	code->add(Machinecode::Operation::dec);
+	code->add(Machinecode::Operation::jzero, vars[finish_r2]);
+
+	factorize(code, r2, r1);
+	code->add(Machinecode::Operation::store, r2);
+
+	factorize(code, a2, r3);
+	code->add(Machinecode::Operation::store, r4);
+
+	code->add(Machinecode::Operation::shift, r1);
+	code->add(Machinecode::Operation::store, rt);
+
+	code->add(Machinecode::Operation::load, r2);
+	code->add(Machinecode::Operation::shift, r3);
+	code->add(Machinecode::Operation::add, rt);
+	code->add(Machinecode::Operation::store, rt);
+
+	code->add(Machinecode::Operation::sub, rt);
+	code->add(Machinecode::Operation::inc);
+	code->add(Machinecode::Operation::shift, r1);
+	code->add(Machinecode::Operation::shift, r3);
+	code->add(Machinecode::Operation::add, rt);
+
+	code->add(Machinecode::Operation::add, acc);
+	code->add(Machinecode::Operation::store, acc);
+
+	code->add(Machinecode::Operation::jump, vars[loop]);
+	code->add(Machinecode::Operation::label, vars[finish_r2]);
+	
+	code->add(Machinecode::Operation::load, r4);
+	code->add(Machinecode::Operation::add, acc);
+	code->add(Machinecode::Operation::store, acc);
+
+	code->add(Machinecode::Operation::jump, vars[end]);
+	code->add(Machinecode::Operation::label, vars[finish_r4]);
+
+	code->add(Machinecode::Operation::load, r2);
+	code->add(Machinecode::Operation::add, acc);
+	code->add(Machinecode::Operation::store, acc);
+
+	code->add(Machinecode::Operation::label, vars[end]);
+}
+
+void Intercode::factorize(Machinecode* code, Address* num, Address* power_of_to) {
+	auto loop = generateLabel();
+	auto end = generateLabel();
+
+	code->add(Machinecode::Operation::load, num);
+	code->add(Machinecode::Operation::store, r0);
+
+	code->add(Machinecode::Operation::load, power_of_to);
+	code->add(Machinecode::Operation::sub, power_of_to);
+	code->add(Machinecode::Operation::store, power_of_to);
+	
+	// Label loop
+	code->add(Machinecode::Operation::label, vars[loop]);
+
+	// Shift r0
+	code->add(Machinecode::Operation::load, r0);
+	code->add(Machinecode::Operation::shift, code->cn1);
+
+	// If zero, shifting finished
+	code->add(Machinecode::Operation::jzero, vars[end]);
+
+	// Else, count the shift
+	// Remember r0
+	code->add(Machinecode::Operation::store, r0);
+
+	// Increment shift counter
+	code->add(Machinecode::Operation::load, power_of_to);
+	code->add(Machinecode::Operation::inc);
+	code->add(Machinecode::Operation::store, power_of_to);
+
+	// Shift again
+	code->add(Machinecode::Operation::jump, vars[loop]);
+
+	// Label end - shifting finished
+	code->add(Machinecode::Operation::label, vars[end]);
+	// p0 is 0 for sure
+	code->add(Machinecode::Operation::inc);
+	// now it's 1
+	code->add(Machinecode::Operation::shift, power_of_to);
+	// and now its 2^power_of_to
+	code->add(Machinecode::Operation::sub, num);
+	// currently, num = 2^power_of_to - p0
+	// and p0 == remainder
 }

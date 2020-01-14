@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 	spdlog::set_pattern("%^[%l]%$ %v");
     spdlog::enable_backtrace(32);
 
-	cxxopts::Options options("cmp", "JFTT2019 Compiler");
+	cxxopts::Options options("cmp", "JFTT 2019 Compiler");
 	options.add_options()
 		("input", "input code", cxxopts::value<std::string>())
 		("output", "output program", cxxopts::value<std::string>())
@@ -78,6 +78,13 @@ int main(int argc, char** argv) {
 
 	Intercode* ic = new Intercode();
 	__program->translate(ic);
+
+	Machinecode* mc = new Machinecode();
+	ic->translate(mc);
+
+	mc->legalize();
+
+
 
 	return 0;
 }

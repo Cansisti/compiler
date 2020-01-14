@@ -4,6 +4,7 @@
 #include <string>
 
 #include "intercode/address.h"
+#include "machinecode/machinecode.h"
 
 class Intercode {
 	public:
@@ -41,11 +42,13 @@ class Intercode {
 		void add(Intercode::Operation, size_t = not_an_addr, size_t = not_an_addr, size_t = not_an_addr);
 		size_t generateLabel();
 		void putLabel(size_t l);
+
+		void translate(Machinecode*);
 	protected:
-		size_t next_label = 0;
+		size_t next_label = -10;
 
 		struct Command {
-			Operation op;
+			Intercode::Operation op;
 			Address* a0 = nullptr;
 			Address* a1 = nullptr;
 			Address* a2 = nullptr;
@@ -53,4 +56,24 @@ class Intercode {
 
 		std::map<size_t, Address*> vars;
 		std::vector<Command> commands;
+
+		Address* rt = new Address(Address::Type::variable, 1);
+		Address* r0 = new Address(Address::Type::variable, 1);
+		Address* r1 = new Address(Address::Type::variable, 1);
+		Address* r2 = new Address(Address::Type::variable, 1);
+		Address* r3 = new Address(Address::Type::variable, 1);
+		Address* r4 = new Address(Address::Type::variable, 1);
+		Address* acc = new Address(Address::Type::variable, 1);
+
+		void translateMul(Machinecode*, Address*, Address*, Address*);
+
+		/**
+		 * Factorize num into power of to and remainder.
+		 * Uses r0.
+		 * Does not modify num.
+		 * Sets power_of_to.
+		 * Afterwards, num = 2^power_of_to - remainder.
+		 * Remainder is storen and left at p0.
+		 **/
+		void factorize(Machinecode*, Address* num, Address* power_of_to);
 };
