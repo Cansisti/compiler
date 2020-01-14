@@ -2,6 +2,7 @@
 #include <cxxopts.hpp>
 #include "bison.tab.h"
 #include "common/program.h"
+#include <fstream>
 
 extern int yylineno;
 extern char* yytext;
@@ -83,8 +84,13 @@ int main(int argc, char** argv) {
 	ic->translate(mc);
 
 	mc->legalize();
-
-
+	
+	std::ofstream output(result["output"].as<std::string>());
+	if(!output.is_open()) {
+		spdlog::error("Cannot open file {}", result["output"].as<std::string>());
+		return 103;
+	}
+	mc->save(output);
 
 	return 0;
 }

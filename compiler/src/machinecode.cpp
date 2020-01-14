@@ -158,3 +158,77 @@ void Machinecode::generateConst(const Address* addr) {
 	spdlog::debug(tt);
 	assert(tt == addr->value);
 }
+
+void Machinecode::save(std::ofstream& file) {
+	assert(file.is_open());
+	for(auto c: code) {
+		switch(c.op) {
+			case Operation::label: assert(false);
+			case Operation::get: {
+				file << "GET ";
+				break;
+			}
+			case Operation::put: {
+				file << "PUT ";
+				break;
+			}
+			case Operation::load: {
+				file << "LOAD " << c.addr;
+				break;
+			}
+			case Operation::store: {
+				file << "STORE " << c.addr;
+				break;
+			}
+			case Operation::load_ind: {
+				file << "LOADI " << c.addr;
+				break;
+			}
+			case Operation::store_ind: {
+				file << "STOREI " << c.addr;
+				break;
+			}
+			case Operation::add: {
+				file << "ADD " << c.addr;
+				break;
+			}
+			case Operation::sub: {
+				file << "SUB " << c.addr;
+				break;
+			}
+			case Operation::shift: {
+				file << "SHIFT " << c.addr;
+				break;
+			}
+			case Operation::inc: {
+				file << "INC";
+				break;
+			}
+			case Operation::dec: {
+				file << "DEC";
+				break;
+			}
+			case Operation::jump: {
+				file << "JUMP " << c.addr;
+				break;
+			}
+			case Operation::jpos: {
+				file << "JPOS " << c.addr;
+				break;
+			}
+			case Operation::jneg: {
+				file << "JNEG " << c.addr;
+				break;
+			}
+			case Operation::jzero: {
+				file << "JZERO " << c.addr;
+				break;
+			}
+			case Operation::halt: {
+				file << "HALT";
+				break;
+			}
+		}
+		file << std::endl;
+	}
+};

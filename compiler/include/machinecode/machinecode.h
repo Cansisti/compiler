@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include "intercode/address.h"
+#include <fstream>
 
 class Machinecode {
 	public:
@@ -31,6 +32,7 @@ class Machinecode {
 
 		void add(Machinecode::Operation, const Address* = nullptr, const Address* = nullptr);
 		void legalize();
+		void save(std::ofstream&);
 
 		const Address* cp1 = new Address(Address::Type::constant, 1, 1);
 		const Address* cn1 = new Address(Address::Type::constant, 1, -1);
