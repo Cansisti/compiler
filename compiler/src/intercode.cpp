@@ -82,20 +82,20 @@ void Intercode::translate(Machinecode* code) {
 				break;
 			}
 			case Operation::mul: {
-				code->add(Machinecode::Operation::load, acc);
-				code->add(Machinecode::Operation::sub, acc);
-				code->add(Machinecode::Operation::store, acc);
 				translateMul(code, command.a0, command.a1, command.a2);
 				code->add(Machinecode::Operation::load, acc);
 				code->add(Machinecode::Operation::store, rt);
 				break;
 			}
 			case Operation::div: {
-				throw std::runtime_error("div is not supported yet");
+				translateDiv(code, command.a0, command.a1, command.a2);
+				code->add(Machinecode::Operation::load, acc);
+				code->add(Machinecode::Operation::store, rt);
 				break;
 			}
 			case Operation::mod: {
-				throw std::runtime_error("mod is not supported yet");
+				translateDiv(code, command.a0, command.a1, command.a2);
+				// hope and pray it's already in rt
 				break;
 			}
 			case Operation::inc: {
@@ -141,15 +141,16 @@ void Intercode::translate(Machinecode* code) {
 }
 
 void Intercode::translateMul(Machinecode* code, Address* a0, Address* a1, Address* a2) {
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::store, acc);
+	code->add(Machinecode::Operation::inc);
+	code->add(Machinecode::Operation::store, r5);
+
 	code->add(Machinecode::Operation::load, a0, a1);
 	code->add(Machinecode::Operation::store, r2);
 
 	code->add(Machinecode::Operation::load, a2);
 	code->add(Machinecode::Operation::store, r4);
-
-	code->add(Machinecode::Operation::sub);
-	code->add(Machinecode::Operation::inc);
-	code->add(Machinecode::Operation::store, r5);
 
 	auto left_negative = generateLabel();
 	auto check_right_negative = generateLabel();
@@ -354,6 +355,100 @@ void Intercode::factorize(Machinecode* code, Address* num, Address* power_of_to)
 	code->add(Machinecode::Operation::jump, vars[end]);
 
 	// the end
+	code->add(Machinecode::Operation::label, vars[end]);
+}
+
+void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Address* a2) {
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::store, acc); // count here
+	code->add(Machinecode::Operation::store, r1); // powers of two
+
+	auto end_result_zero = generateLabel();
+	auto end_result_one = generateLabel();
+	auto end_result_left = generateLabel();
+	auto end = generateLabel();
+
+	code->add(Machinecode::Operation::load, a2);
+	// check if someone is trying to trick us
+	code->add(Machinecode::Operation::dec);
+	code->add(Machinecode::Operation::jzero, vars[end_result_left]);
+	code->add(Machinecode::Operation::inc); // alright, take it back
+	code->add(Machinecode::Operation::store, r4);
+	code->add(Machinecode::Operation::store, r0); // for some later use
+
+	// save those
+	code->add(Machinecode::Operation::load, a0, a1);
+	code->add(Machinecode::Operation::store, rt);
+
+	// not a trick but still
+	// got rt here from last load/store
+	code->add(Machinecode::Operation::sub, r4);
+	code->add(Machinecode::Operation::jneg, vars[end_result_zero]); // if right is more
+	code->add(Machinecode::Operation::jzero, vars[end_result_one]); // if they the same
+
+	// the magic
+	// ---------
+	auto loop = generateLabel();
+	auto exceeded = generateLabel();
+	auto end_loop = generateLabel();
+
+	// before start r0 = r4
+	code->add(Machinecode::Operation::label, vars[loop]); // label loop
+	// maybe 2*r0 fits?
+	code->add(Machinecode::Operation::load, r0);
+	code->add(Machinecode::Operation::shift, code->cp1);
+	code->add(Machinecode::Operation::store, r0);
+	// does it? does it?
+	code->add(Machinecode::Operation::sub, rt); // threat rt as rest (not divied yet)
+	code->add(Machinecode::Operation::jpos, vars[exceeded]);
+	// yay, it does, remember it
+	code->add(Machinecode::Operation::load, r1);
+	code->add(Machinecode::Operation::inc);
+	code->add(Machinecode::Operation::store, r1);
+	// nah, it doesn't
+	code->add(Machinecode::Operation::label, vars[exceeded]); // label exceeded
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::inc);
+	code->add(Machinecode::Operation::shift, r1);
+	code->add(Machinecode::Operation::add, acc);
+	code->add(Machinecode::Operation::store, acc); // remember how much
+	code->add(Machinecode::Operation::load, r4);
+	code->add(Machinecode::Operation::store, r0); // renew r0
+	code->add(Machinecode::Operation::shift, r1); // how much of it fits already
+	code->add(Machinecode::Operation::store, r2); // why not remember it
+	code->add(Machinecode::Operation::load, rt);
+	code->add(Machinecode::Operation::sub, r2);
+	code->add(Machinecode::Operation::store, rt); // and have a little less to divide
+	code->add(Machinecode::Operation::sub, r4); // can it fit any more?
+	code->add(Machinecode::Operation::jneg, vars[end_loop]); // uff, it can't
+	code->add(Machinecode::Operation::jump, vars[loop]); // well then, keep it up
+	code->add(Machinecode::Operation::label, vars[end_loop]); // label end_loop
+	// ...?
+	code->add(Machinecode::Operation::jump, vars[end]);
+
+	// those tricks
+	// -----------
+	code->add(Machinecode::Operation::label, vars[end_result_zero]); // if rt - r4 < 0
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::store, acc); // result is 0
+	code->add(Machinecode::Operation::load, rt);
+	code->add(Machinecode::Operation::store, rt); // remainder is rt
+	code->add(Machinecode::Operation::jump, vars[end]);
+
+	code->add(Machinecode::Operation::label, vars[end_result_one]); // if rt - r4 = 0
+	// already got 0 cause jzero in here
+	code->add(Machinecode::Operation::store, rt); // remainder is 0
+	code->add(Machinecode::Operation::inc);
+	code->add(Machinecode::Operation::store, acc); // result is 1
+	code->add(Machinecode::Operation::jump, vars[end]);
+
+	code->add(Machinecode::Operation::label, vars[end_result_left]); // if r4 = 1
+	// already got 0 cause jzero in here
+	code->add(Machinecode::Operation::store, rt); // remainder is 0
+	code->add(Machinecode::Operation::load, a0, a1); // careful, as we don't have it yet in rt
+	code->add(Machinecode::Operation::store, acc); // result is a0(a1)
+	code->add(Machinecode::Operation::jump, vars[end]);
+
 	code->add(Machinecode::Operation::label, vars[end]);
 }
 

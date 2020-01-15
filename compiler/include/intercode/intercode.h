@@ -70,6 +70,7 @@ class Intercode {
 		Address* acc = new Address(Address::Type::variable, 1, "*acc");
 
 		void translateMul(Machinecode*, Address*, Address*, Address*);
+		void translateDiv(Machinecode*, Address*, Address*, Address*);
 
 		/**
 		 * Factorize num into power of to and remainder.
