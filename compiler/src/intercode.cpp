@@ -358,6 +358,7 @@ void Intercode::factorize(Machinecode* code, Address* num, Address* power_of_to)
 	code->add(Machinecode::Operation::label, vars[end]);
 }
 
+// TODO a DIV 0 == 0, 0r
 void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Address* a2) {
 	code->add(Machinecode::Operation::sub);
 	code->add(Machinecode::Operation::store, acc); // count here
@@ -366,9 +367,12 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	auto end_result_zero = generateLabel();
 	auto end_result_one = generateLabel();
 	auto end_result_left = generateLabel();
+	auto end_div_by_zero = generateLabel();
 	auto end = generateLabel();
 
 	code->add(Machinecode::Operation::load, a2);
+	// check division by 0
+	code->add(Machinecode::Operation::jzero, vars[end_div_by_zero]);
 	// check if someone is trying to trick us
 	code->add(Machinecode::Operation::dec);
 	code->add(Machinecode::Operation::jzero, vars[end_result_left]);
@@ -447,6 +451,12 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::store, rt); // remainder is 0
 	code->add(Machinecode::Operation::load, a0, a1); // careful, as we don't have it yet in rt
 	code->add(Machinecode::Operation::store, acc); // result is a0(a1)
+	code->add(Machinecode::Operation::jump, vars[end]);
+
+	code->add(Machinecode::Operation::label, vars[end_div_by_zero]); // if r4 = 0 !!!
+	// already got 0 cause jzero in here
+	code->add(Machinecode::Operation::store, rt); // remainder is 0 for div 0
+	code->add(Machinecode::Operation::store, acc); // result is 0 also
 	code->add(Machinecode::Operation::jump, vars[end]);
 
 	code->add(Machinecode::Operation::label, vars[end]);

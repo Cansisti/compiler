@@ -1,0 +1,53 @@
+[ div and mod as it's the same ]
+DECLARE
+	a
+BEGIN
+	a ASSIGN 1 DIV 3; [ nope ]
+	WRITE a;
+	a ASSIGN 1 MOD 3; [ nope ]
+	WRITE a;
+	a ASSIGN 121312831 DIV 1; [ not impressive ]
+	WRITE a;
+	a ASSIGN 121312831 MOD 1; [ not impressive ]
+	WRITE a;
+	a ASSIGN 987654321 DIV 987654321; [ almost, almost ]
+	WRITE a;
+	a ASSIGN 987654321 MOD 987654321; [ almost, almost ]
+	WRITE a;
+
+	[ ok now real things ]
+	a ASSIGN 177 DIV 12;
+	WRITE a;
+	a ASSIGN 177 MOD 12;
+	WRITE a;
+	
+	a ASSIGN 177 DIV -12;
+	WRITE a;
+	a ASSIGN 177 MOD -12;
+	WRITE a;
+
+	a ASSIGN -177 DIV 12;
+	WRITE a;
+	a ASSIGN -177 MOD 12;
+	WRITE a;
+
+	a ASSIGN -177 DIV -12;
+	WRITE a;
+	a ASSIGN -177 MOD -12;
+	WRITE a;
+
+	[ kinda border things ]
+	a ASSIGN 24 DIV 12;
+	WRITE a;
+	a ASSIGN 25 DIV 12;
+	WRITE a;
+	a ASSIGN 24 MOD 12;
+	WRITE a;
+	a ASSIGN 25 MOD 12;
+	WRITE a;
+
+	a ASSIGN 25 DIV 0; [!!!!]
+	WRITE a;
+	a ASSIGN 25 MOD 0; [!!!!]
+	WRITE a;
+END

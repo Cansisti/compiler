@@ -16,5 +16,9 @@ tests:
   stdout: ''
 - sh: ./build/cmp ./tests/programs/test-5.imp ./tests/build/test-5.mr
   stdout: ''
+- sh: ./build/cmp ./tests/programs/test-6.imp ./tests/build/test-6.mr
+  stdout: ''
+- sh: ./build/cmp ./tests/programs/test-5.imp ./tests/build/test-6.mr
+  stdout: ''
 - sh: ./build/cmp ./tests/programs/test-3.imp ./tests/build/test-4.mr
   stdout: ''
