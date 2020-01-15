@@ -11,10 +11,11 @@ void Machinecode::add(Machinecode::Operation op, const Address* addr, const Addr
 	});
 }
 
-void Machinecode::lgl(Machinecode::Operation op, Machinecode::taddr addr) {
+void Machinecode::lgl(Machinecode::Operation op, Machinecode::taddr addr, std::string c) {
 	code.push_back({
 		op,
-		addr
+		addr,
+		c
 	});
 }
 
@@ -26,8 +27,10 @@ void Machinecode::legalize() {
 	setAddresses();
 	generateConstants();
 	for(auto command: commands) {
+		spdlog::debug("'{}' {}", command.addr ? command.addr->name : "-", command.op);
 		switch(command.op) {
 			case Operation::label: {
+				spdlog::debug("label {}:", labels[command.addr]);
 				lgl(Operation::label, labels[command.addr]);
 				break;
 			}
@@ -35,29 +38,32 @@ void Machinecode::legalize() {
 			case Operation::jpos:
 			case Operation::jneg:
 			case Operation::jzero: {
+				assert(command.addr);
+				spdlog::debug("jump ({}) -> {}", command.op, labels[command.addr]);
 				lgl(command.op, labels[command.addr]);
 				break;
 			}
 			case Operation::store: {
+				assert(command.addr);
 				if(not command.offset) {
-					lgl(Operation::store, addresses[command.addr]);
+					lgl(Operation::store, addresses[command.addr], command.addr->name);
 				}
 				else {
-					lgl(Operation::store, addresses[t1]);
-					lgl(Operation::load, addresses[command.addr]);
-					lgl(Operation::add, addresses[command.offset]);
-					lgl(Operation::store, addresses[t2]);
-					lgl(Operation::load, addresses[t1]);
-					lgl(Operation::store_ind, addresses[t2]);
+					lgl(Operation::store, addresses[t1], "@t1 - indirect store");
+					lgl(Operation::load, addresses[command.addr], command.addr->name);
+					lgl(Operation::add, addresses[command.offset], command.offset->name);
+					lgl(Operation::store, addresses[t2], "@t2");
+					lgl(Operation::load, addresses[t1], "@t1");
+					lgl(Operation::store_ind, addresses[t2], "@t2");
 				}
 				break;
 			}
 			case Operation::load: {
 				if(not command.offset) {
-					lgl(Operation::load, addresses[command.addr]);
+					lgl(Operation::load, addresses[command.addr], command.addr ? command.addr->name : "");
 				}
 				else {
-					lgl(Operation::load, addresses[command.addr]);
+					lgl(Operation::load, addresses[command.addr], command.addr ? command.addr->name : "");
 					lgl(Operation::add, addresses[command.offset]);
 					lgl(Operation::load_ind, 0);
 					lgl(Operation::load, 0);
@@ -66,7 +72,7 @@ void Machinecode::legalize() {
 			};
 			default: {
 				assert(not command.offset);
-				lgl(command.op, addresses[command.addr]);
+				lgl(command.op, addresses[command.addr], command.addr ? command.addr->name : "");
 			}
 		}
 	}
@@ -116,47 +122,70 @@ void Machinecode::setAddr(const Address* addr) {
 }
 
 void Machinecode::generateConstants() {
+	spdlog::info("Generating constants...");
+	generateConst(addresses[cp1], cp1->value);
+	generateConst(addresses[cn1], cn1->value);
+
+	std::vector<std::pair<taddr, long long>> constants;
 	for(auto addr: addresses) {
-		if(addr.first->type == Address::Type::constant) generateConst(addr.first);
+		if(addr.first == cp1 or addr.first == cn1) continue;
+		if(addr.first->type == Address::Type::constant) {
+			constants.push_back({addr.second, addr.first->value});
+		}
+		if(addr.first->type == Address::Type::table) {
+			constants.push_back({addr.second, addr.first->value + addr.second});
+		}
 	}
+	std::sort(constants.begin(), constants.end());
+	for(auto constant: constants) {
+		generateConst(constant.first, constant.second);
+	}
+	spdlog::info("Generating constants done");
 }
 
-void Machinecode::generateConst(const Address* addr) {
+void Machinecode::generateConst(Machinecode::taddr addr, long long value) {
 	assert(addr);
-	spdlog::info("Generating const {}", addr->value);
+	spdlog::info("Generating const {}", value);
 
-	lgl(Operation::sub, 0);
-	if(addr->value == 0) {
-		lgl(Operation::store, addresses[addr]);
+	lgl(Operation::sub, 0, "start generation of " + std::to_string(value));
+	lgl(Operation::store, addr, "@val");
+	if(value == 0) {
 		return;
 	}
-	auto iop = addr->value > 0 ? Operation::inc : Operation::dec;
+	auto iop = value > 0 ? Operation::inc : Operation::dec;
 	lgl(iop);
 
-	unsigned long long x = static_cast<unsigned long long>(addr->value);
-	long long ac = addr->value > 0 ? 1 : -1;
+	if(abs(value) == 1) {
+		lgl(Operation::store, addr, "@c_1");
+		return;
+	}
+
+	unsigned long long x = static_cast<unsigned long long>(value);
+	long long ac = value > 0 ? 1 : -1;
 	long long tt = 0;
-	const unsigned long long goodBit = addr->value > 0 ? 1 : 0;
-	while(x != 0) {
+	const unsigned long long goodBit = value > 0 ? 1 : 0;
+	do {
 		unsigned long long bit = x & 1;
 		if(bit == goodBit) {
-			lgl(Operation::store, addresses[t1]);
-			lgl(Operation::add, addresses[addr]);
-			lgl(Operation::store, addresses[addr]);
-			lgl(Operation::load, addresses[t1]);
+			lgl(Operation::store, addresses[t1], "@t1");
+			lgl(Operation::add, addr, "@val");
+			lgl(Operation::store, addr, "@val");
+			lgl(Operation::load, addresses[t1], "@t1");
 			spdlog::debug(".. + {}", ac);
 			tt += ac;
 		}
 		x >>= 1;
-		lgl(Operation::shift, addresses[cp1]);
+		lgl(Operation::shift, addresses[cp1], "@cp1");
 		ac *= 2;
-	}
-	if(addr->value < 0) {
+	} while(x != 0);
+	if(value < 0) {
+		lgl(Operation::load, addr, "@val decrement, cause val is negative");
 		lgl(Operation::dec);
+		lgl(Operation::store, addr, "@val store val");
 		tt--;
 	}
 	spdlog::debug(tt);
-	assert(tt == addr->value);
+	assert(tt == value);
 }
 
 void Machinecode::save(std::ofstream& file) {
@@ -165,69 +194,72 @@ void Machinecode::save(std::ofstream& file) {
 		switch(c.op) {
 			case Operation::label: assert(false);
 			case Operation::get: {
-				file << "GET ";
+				file << "GET  \t";
 				break;
 			}
 			case Operation::put: {
-				file << "PUT ";
+				file << "PUT  \t";
 				break;
 			}
 			case Operation::load: {
-				file << "LOAD " << c.addr;
+				file << "LOAD \t" << c.addr;
 				break;
 			}
 			case Operation::store: {
-				file << "STORE " << c.addr;
+				file << "STORE\t" << c.addr;
 				break;
 			}
 			case Operation::load_ind: {
-				file << "LOADI " << c.addr;
+				file << "LOADI\t" << c.addr;
 				break;
 			}
 			case Operation::store_ind: {
-				file << "STOREI " << c.addr;
+				file << "STOREI\t" << c.addr;
 				break;
 			}
 			case Operation::add: {
-				file << "ADD " << c.addr;
+				file << "ADD  \t" << c.addr;
 				break;
 			}
 			case Operation::sub: {
-				file << "SUB " << c.addr;
+				file << "SUB  \t" << c.addr;
 				break;
 			}
 			case Operation::shift: {
-				file << "SHIFT " << c.addr;
+				file << "SHIFT\t" << c.addr;
 				break;
 			}
 			case Operation::inc: {
-				file << "INC";
+				file << "INC  \t";
 				break;
 			}
 			case Operation::dec: {
-				file << "DEC";
+				file << "DEC  \t";
 				break;
 			}
 			case Operation::jump: {
-				file << "JUMP " << c.addr;
+				file << "JUMP \t" << c.addr;
 				break;
 			}
 			case Operation::jpos: {
-				file << "JPOS " << c.addr;
+				file << "JPOS \t" << c.addr;
 				break;
 			}
 			case Operation::jneg: {
-				file << "JNEG " << c.addr;
+				file << "JNEG \t" << c.addr;
 				break;
 			}
 			case Operation::jzero: {
-				file << "JZERO " << c.addr;
+				file << "JZERO\t" << c.addr;
 				break;
 			}
 			case Operation::halt: {
-				file << "HALT";
+				file << "HALT \t";
 				break;
 			}
+		}
+		if(c.comment != "") {
+			file << "\t# " << c.comment;
 		}
 		file << std::endl;
 	}

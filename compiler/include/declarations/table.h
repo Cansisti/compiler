@@ -10,6 +10,7 @@ class Table: public Declaration {
 		virtual bool validate() const override;
 		bool checkRange(Num n) const;
 		size_t getSize() const;
+		long long getOffset() const;
 	private:
 		Num from;
 		Num to;

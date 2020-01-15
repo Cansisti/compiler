@@ -12,6 +12,7 @@ class Program {
 
 		void progagateParents();
 		bool validate() const;
+		void declare(Intercode*) const;
 		void translate(Intercode*) const;
 		Declaration* findDeclaration(const PId) const;
 	protected:

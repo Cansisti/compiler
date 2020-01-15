@@ -21,14 +21,13 @@
 void run_machine( std::vector< std::pair<int,long long> > & program )
 {
   spdlog::set_pattern("%^[%l]%$ %v");
-  spdlog::set_level(spdlog::level::debug);
   std::map<long long,long long> pam;
 
   long long lr, adr;
 
   long long t;
 
-  std::cout << "Uruchamianie programu." << std::endl;
+  // std::cerr << "Uruchamianie programu." << std::endl;
   lr = 0;
   srand( time(NULL) );
   pam[0] = rand();
@@ -69,5 +68,6 @@ void run_machine( std::vector< std::pair<int,long long> > & program )
       exit(-1);
     }
   }
-  std::cout << "Skończono program (koszt: " << t << ")." << std::endl;
+  // std::cerr << "Skończono program (koszt: " << t << ")." << std::endl;
+  spdlog::debug("Koszt: {}", t);
 }

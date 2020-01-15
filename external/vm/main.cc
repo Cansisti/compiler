@@ -10,12 +10,17 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include <spdlog/spdlog.h>
 
 extern void run_parser( std::vector< std::pair<int,long long> > & program, FILE * data );
 extern void run_machine( std::vector< std::pair<int,long long> > & program );
 
 int main( int argc, char const * argv[] )
 {
+    #ifdef MY_VM_DEBUG
+    spdlog::set_level(spdlog::level::debug);
+    #endif
+
   std::vector< std::pair<int,long long> > program;
   FILE * data;
 

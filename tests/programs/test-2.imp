@@ -1,0 +1,6 @@
+DECLARE
+	a
+BEGIN
+	a ASSIGN 3 TIMES 8;
+	WRITE a;
+END

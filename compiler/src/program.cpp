@@ -228,19 +228,23 @@ bool Program::validateCondition(const Condition* condition) const {
 		std::visit(ValueValidateVisitor(this), *condition->right);
 }
 
-void Program::translate(Intercode* code) const {
+void Program::declare(Intercode* code) const {
 	for(auto declaration: declarations) {
 		switch(declaration->type()) {
 			case 0: {
-				code->declare(declaration->address, Address::Type::variable);
+				code->declare(declaration->address, Address::Type::variable, declaration->id);
 				break;
 			}
 			case 1: {
 				auto table = dynamic_cast<const Table*>(declaration);
-				code->declare(table->address, Address::Type::table, table->getSize());
+				code->declare(table->address, Address::Type::table, declaration->id, table->getSize() + 1, table->getOffset());
+				break;
 			}
 		}
 	}
+}
+
+void Program::translate(Intercode* code) const {
 	for(auto command: *commands) {
 		std::visit(AnyCommandVisitor(), *command)->translate(this, code);
 	}

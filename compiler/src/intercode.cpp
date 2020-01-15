@@ -1,6 +1,7 @@
 #include "intercode/intercode.h"
 #include "common/declaration.h"
 #include <assert.h>
+#include <spdlog/spdlog.h>
 
 const size_t Intercode::not_an_addr = 0;
 const size_t Intercode::temp_addr = -1;
@@ -10,8 +11,8 @@ Intercode::Intercode() {
 	vars[temp_addr] = rt;
 }
 
-void Intercode::declare(size_t id, Address::Type type, size_t size) {
-	vars[id] = new Address(type, size);
+void Intercode::declare(size_t id, Address::Type type, std::string name, size_t size, long long offset) {
+	vars[id] = new Address(type, size, name, offset);
 }
 
 void Intercode::add(Intercode::Operation op, size_t s0, size_t s1, size_t s2) {
@@ -35,13 +36,15 @@ void Intercode::putLabel(size_t l) {
 
 size_t Intercode::constant(long long value) {
 	auto id = Declaration::next_address++;
-	auto addr = new Address(Address::Type::constant, 1, value);
+	auto addr = new Address(Address::Type::constant, 1, "const " + std::to_string(value), value);
 	vars[id] = addr;
 	return id;
 }
 
 void Intercode::translate(Machinecode* code) {
+	spdlog::info("Start intercode translation...");
 	for(auto command: commands) {
+		spdlog::debug("{}:\t{}\t{}\t{}", (int) command.op, (void*) command.a0, (void*) command.a1, (void*) command.a2);
 		switch(command.op) {
 			case Operation::assign: {
 				code->add(Machinecode::Operation::load, command.a2);
@@ -54,8 +57,8 @@ void Intercode::translate(Machinecode* code) {
 				break;
 			}
 			case Operation::put: {
+				code->add(Machinecode::Operation::load, command.a0, command.a1);
 				code->add(Machinecode::Operation::put);
-				code->add(Machinecode::Operation::store, command.a0, command.a1);
 				break;
 			}
 			case Operation::add : {
@@ -119,6 +122,7 @@ void Intercode::translate(Machinecode* code) {
 			}
 		}
 	}
+	spdlog::info("Intercode translation done");
 }
 
 void Intercode::translateMul(Machinecode* code, Address* a0, Address* a1, Address* a2) {

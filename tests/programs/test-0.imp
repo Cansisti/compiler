@@ -1,0 +1,15 @@
+[ Basic operations and constants ]
+DECLARE
+	a, b, c, d
+BEGIN
+	WRITE 1234567890;
+	WRITE -987654321;
+	a ASSIGN 5 PLUS 10;
+	b ASSIGN 12 MINUS 0;
+	c ASSIGN a;
+	d ASSIGN b PLUS a;
+	WRITE a;
+	WRITE b;
+	WRITE c;
+	WRITE d;
+END

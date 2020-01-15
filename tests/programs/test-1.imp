@@ -1,0 +1,21 @@
+[ Using tables ]
+DECLARE
+	tab(1:4)
+BEGIN
+	tab(1) ASSIGN 1;
+	tab(2) ASSIGN 2;
+	tab(3) ASSIGN 3;
+	WRITE tab(1); [1]
+	WRITE tab(2); [2]
+	WRITE tab(3); [3]
+	tab(1) ASSIGN tab(2) PLUS tab(3);
+	WRITE tab(1); [5]
+	WRITE tab(2); [2]
+	WRITE tab(3); [3]
+	tab(4) ASSIGN tab(1) PLUS tab(2);
+	tab(4) ASSIGN tab(4) MINUS tab(3);
+	WRITE tab(1); [5]
+	WRITE tab(2); [2]
+	WRITE tab(3); [3]
+	WRITE tab(4); [5 + 2 - 3 = 4]
+END

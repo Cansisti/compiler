@@ -59,11 +59,12 @@ bool ForLoop::validateCounterViolation(PId counter) const {
 }
 
 void ForLoop::translate(const Program* program, Intercode* code) const {
+	this->program->declare(code);
 	auto c = this->program->findDeclaration(counter)->address;
 	auto f = getValueAddress(program, code, from);
 	code->add(Intercode::Operation::assign, c, Intercode::not_an_addr, f);
 	auto t = Declaration::next_address++;
-	code->declare(t, Address::Type::variable);
+	code->declare(t, Address::Type::variable, "forloop 'to'");
 	code->add(Intercode::Operation::assign, t, Intercode::not_an_addr, getValueAddress(program, code, to));
 	auto begin_label = code->generateLabel();
 	auto end_label = code->generateLabel();

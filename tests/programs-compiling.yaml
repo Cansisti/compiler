@@ -1,9 +1,0 @@
-title: Compiling tests from /programs
-output: ./tests/out/programs-compiling-out.yaml
-suite: programs-compiling
-
-tests:
-- sh: ./build/cmp ./external/programs/p1.imp ./tests/build/p1.mr
-- sh: ./build/cmp ./external/programs/program0.imp ./tests/build/program0.mr
-- sh: ./build/cmp ./external/programs/program1.imp ./tests/build/program1.mr
-- sh: ./build/cmp ./external/programs/program2.imp ./tests/build/program2.mr

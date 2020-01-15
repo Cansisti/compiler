@@ -78,6 +78,7 @@ int main(int argc, char** argv) {
 	}
 
 	Intercode* ic = new Intercode();
+	__program->declare(ic);
 	__program->translate(ic);
 
 	Machinecode* mc = new Machinecode();

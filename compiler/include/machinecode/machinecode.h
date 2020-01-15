@@ -34,8 +34,8 @@ class Machinecode {
 		void legalize();
 		void save(std::ofstream&);
 
-		const Address* cp1 = new Address(Address::Type::constant, 1, 1);
-		const Address* cn1 = new Address(Address::Type::constant, 1, -1);
+		const Address* cp1 = new Address(Address::Type::constant, 1, "cp1", 1);
+		const Address* cn1 = new Address(Address::Type::constant, 1, "cn1", -1);
 
 		const Address* t1 = new Address(Address::Type::variable, 1);
 		const Address* t2 = new Address(Address::Type::variable, 1);
@@ -53,9 +53,10 @@ class Machinecode {
 		struct LegalCode {
 			Machinecode::Operation op;
 			taddr addr;
+			std::string comment;
 		};
 
-		void lgl(Machinecode::Operation, Machinecode::taddr = 0);
+		void lgl(Machinecode::Operation, Machinecode::taddr = 0, std::string = "");
 
 		std::vector<Command> commands;
 		std::vector<LegalCode> code;
@@ -66,6 +67,6 @@ class Machinecode {
 
 		void setAddr(const Address*);
 		void setAddresses();
-		void generateConst(const Address*);
+		void generateConst(Machinecode::taddr, long long);
 		void generateConstants();
 };

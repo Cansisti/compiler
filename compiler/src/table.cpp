@@ -34,3 +34,7 @@ bool Table::validate() const {
 size_t Table::getSize() const {
 	return to - from + 1;
 }
+
+long long Table::getOffset() const {
+	return -from + 1;
+}
