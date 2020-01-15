@@ -261,7 +261,6 @@ void Intercode::translateMul(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::jzero, vars[change_sign]);
 	code->add(Machinecode::Operation::jump, vars[end_end]);
 	code->add(Machinecode::Operation::label, vars[change_sign]);
-	code->add(Machinecode::Operation::sub);
 	code->add(Machinecode::Operation::sub, acc);
 	code->add(Machinecode::Operation::store, acc);
 	code->add(Machinecode::Operation::label, vars[end_end]);
@@ -360,12 +359,10 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	// save those
 	code->add(Machinecode::Operation::load, a0, a1);
 	code->add(Machinecode::Operation::store, rt);
-	
+
 	theTrickOfSign(code, r4, rt);
 	getRidOfSign(code, r4);
 	getRidOfSign(code, rt);
-	// TODO
-	// put right sign between end_loop and end
 
 	// not a trick but still
 	// got rt here from last load/store
@@ -410,7 +407,18 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::jneg, vars[end_loop]); // uff, it can't
 	code->add(Machinecode::Operation::jump, vars[loop]); // well then, keep it up
 	code->add(Machinecode::Operation::label, vars[end_loop]); // label end_loop
-	// ...?
+	
+	auto change_sign_end = generateLabel();
+	auto change_sign = generateLabel();
+
+	code->add(Machinecode::Operation::load, r5);
+	code->add(Machinecode::Operation::jzero, vars[change_sign]);
+	code->add(Machinecode::Operation::jump, vars[change_sign_end]);
+	code->add(Machinecode::Operation::label, vars[change_sign]);
+	code->add(Machinecode::Operation::sub, acc);
+	code->add(Machinecode::Operation::store, acc);
+	code->add(Machinecode::Operation::label, vars[change_sign_end]);
+
 	code->add(Machinecode::Operation::jump, vars[end]);
 
 	// those tricks
