@@ -19,6 +19,11 @@ maszyna-wirtualna-cln: lexer.o parser.o mw-cln.o main.o
 	$(CXX) $^ -o $@ -l cln
 	strip $@
 
+vmi: lexer.o parser.o mw-interactive.o main.o
+	$(CXX) $^ -o $@ -I../../spdlog/include
+	strip $@
+	cp $@ ../../build/$@
+
 %.o: %.cc
 	$(CXX) $(FLAGS) -c $^ -I../../spdlog/include
 

@@ -33,6 +33,7 @@ class Machinecode {
 		void add(Machinecode::Operation, const Address* = nullptr, const Address* = nullptr);
 		void legalize();
 		void save(std::ofstream&);
+		void setAddr(const Address*);
 
 		const Address* cp1 = new Address(Address::Type::constant, 1, "cp1", 1);
 		const Address* cn1 = new Address(Address::Type::constant, 1, "cn1", -1);
@@ -65,7 +66,6 @@ class Machinecode {
 		std::map<const Address*, taddr> addresses;
 		std::map<taddr, taddr> label_translation;
 
-		void setAddr(const Address*);
 		void setAddresses();
 		void generateConst(Machinecode::taddr, long long);
 		void generateConstants();

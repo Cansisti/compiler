@@ -66,6 +66,7 @@ class Intercode {
 		Address* r2 = new Address(Address::Type::variable, 1, "*r2");
 		Address* r3 = new Address(Address::Type::variable, 1, "*r3");
 		Address* r4 = new Address(Address::Type::variable, 1, "*r4");
+		Address* r5 = new Address(Address::Type::variable, 1, "*r5");
 		Address* acc = new Address(Address::Type::variable, 1, "*acc");
 
 		void translateMul(Machinecode*, Address*, Address*, Address*);
@@ -76,7 +77,7 @@ class Intercode {
 		 * Does not modify num.
 		 * Sets power_of_to.
 		 * Afterwards, num = 2^power_of_to - remainder.
-		 * Remainder is storen and left at p0.
+		 * Remainder is left at p0.
 		 **/
 		void factorize(Machinecode*, Address* num, Address* power_of_to);
 };

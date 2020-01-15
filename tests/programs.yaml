@@ -8,3 +8,4 @@ tests:
 - sh: ./build/cmp ./tests/programs/test-2.imp ./tests/build/test-2.mr
 - sh: ./build/cmp ./tests/programs/test-3.imp ./tests/build/test-3.mr
 - sh: ./build/cmp ./tests/programs/test-4.imp ./tests/build/test-4.mr
+- sh: ./build/cmp ./tests/programs/test-5.imp ./tests/build/test-5.mr
