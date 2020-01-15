@@ -80,6 +80,8 @@ class Intercode {
 		 **/
 		void theTrickOfSign(Machinecode*, Address*, Address*);
 
+		void getRidOfSign(Machinecode*, Address*);
+
 		/**
 		 * Factorize num into power of to and remainder.
 		 * Uses r0.
