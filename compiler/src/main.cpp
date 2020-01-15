@@ -23,7 +23,8 @@ int main(int argc, char** argv) {
 		("input", "input code", cxxopts::value<std::string>())
 		("output", "output program", cxxopts::value<std::string>())
 		("v,verbose", "be verbose")
-		("d,debug", "be even more verbose");
+		("d,debug", "be even more verbose")
+		("intercode", "print intercode to give file", cxxopts::value<std::string>());
 
 	options.parse_positional({"input", "output"});
 	auto result = options.parse(argc, argv);
@@ -81,6 +82,12 @@ int main(int argc, char** argv) {
 	__program->declare(ic);
 	__program->translate(ic);
 
+	if(result.count("intercode")) {
+		std::ofstream icfile(result["intercode"].as<std::string>());
+		ic->save(icfile);
+		icfile.close();
+	}
+
 	Machinecode* mc = new Machinecode();
 	ic->translate(mc);
 
@@ -92,6 +99,7 @@ int main(int argc, char** argv) {
 		return 103;
 	}
 	mc->save(output);
+	output.close();
 
 	return 0;
 }

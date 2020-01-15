@@ -1,0 +1,6 @@
+DECLARE
+	a
+BEGIN
+	a ASSIGN 3 TIMES 5;
+	WRITE a;
+END

@@ -18,7 +18,7 @@ class Condition: public virtual Anything {
 		};
 
 		/**
-		 * If @positive then @op is a jump that will be executed for positive condition.
+		 * If @positive then @op is a jump that will be executed for true condition.
 		 * 
 		 * In other words, @positive answers the question: "Is @op a jump to a positive condition?".
 		 **/

@@ -26,7 +26,7 @@ void Machinecode::legalize() {
 	setAddr(t2);
 	setAddresses();
 	generateConstants();
-	for(auto command: commands) {
+	for(const auto command: commands) {
 		spdlog::debug("'{}' {}", command.addr ? command.addr->name : "-", command.op);
 		switch(command.op) {
 			case Operation::label: {
@@ -78,22 +78,24 @@ void Machinecode::legalize() {
 	}
 	for(size_t i = 0; i<code.size(); i++) {
 		if(code[i].op == Operation::label) {
+			spdlog::debug("## set label {} to @{}", code[i].addr, i);
 			label_translation[code[i].addr] = i;
 			code.erase(code.begin() + i);
 			i--;
 		}
 	}
-	for(auto c: code) {
+	for(auto& c: code) {
 		assert(c.op != Operation::label);
 		switch(c.op) {
 			case Operation::jump:
 			case Operation::jpos:
 			case Operation::jneg:
 			case Operation::jzero: {
-				c.addr = label_translation[c.addr];
+				spdlog::debug("jump ({}) -> {}", c.op, label_translation[c.addr]);
+				c.addr = label_translation.at(c.addr);
 				break;
 			}
-			default: continue;
+			default: break;
 		}
 	}
 	lgl(Operation::halt);
@@ -109,6 +111,7 @@ void Machinecode::setAddresses() {
 			assert(command.addr);
 			assert(labels.find(command.addr) == labels.end());
 			labels[command.addr] = next_label++;
+			spdlog::debug("## put label {} at {}", command.addr->name, next_label-1);
 		}
 	}
 }

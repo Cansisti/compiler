@@ -4,6 +4,7 @@ suite: programs
 
 tests:
 - sh: ./build/cmp ./tests/programs/test-0.imp ./tests/build/test-0.mr
-- sh: ./build/vm ./tests/build/test-0.mr
 - sh: ./build/cmp ./tests/programs/test-1.imp ./tests/build/test-1.mr
-- sh: ./build/vm ./tests/build/test-1.mr
+- sh: ./build/cmp ./tests/programs/test-2.imp ./tests/build/test-2.mr
+- sh: ./build/cmp ./tests/programs/test-3.imp ./tests/build/test-3.mr
+- sh: ./build/cmp ./tests/programs/test-4.imp ./tests/build/test-4.mr

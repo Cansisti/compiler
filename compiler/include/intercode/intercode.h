@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <fstream>
 #include <string>
 
 #include "intercode/address.h"
@@ -40,10 +41,12 @@ class Intercode {
 		size_t constant( long long);
 
 		void add(Intercode::Operation, size_t = not_an_addr, size_t = not_an_addr, size_t = not_an_addr);
-		size_t generateLabel();
+		size_t generateLabel(std::string = "");
 		void putLabel(size_t l);
 
 		void translate(Machinecode*);
+
+		void save(std::ofstream&);
 	protected:
 		size_t next_label = -10;
 
@@ -57,13 +60,13 @@ class Intercode {
 		std::map<size_t, Address*> vars;
 		std::vector<Command> commands;
 
-		Address* rt = new Address(Address::Type::variable, 1);
-		Address* r0 = new Address(Address::Type::variable, 1);
-		Address* r1 = new Address(Address::Type::variable, 1);
-		Address* r2 = new Address(Address::Type::variable, 1);
-		Address* r3 = new Address(Address::Type::variable, 1);
-		Address* r4 = new Address(Address::Type::variable, 1);
-		Address* acc = new Address(Address::Type::variable, 1);
+		Address* rt = new Address(Address::Type::variable, 1, "*rt");
+		Address* r0 = new Address(Address::Type::variable, 1, "*r0");
+		Address* r1 = new Address(Address::Type::variable, 1, "*r1");
+		Address* r2 = new Address(Address::Type::variable, 1, "*r2");
+		Address* r3 = new Address(Address::Type::variable, 1, "*r3");
+		Address* r4 = new Address(Address::Type::variable, 1, "*r4");
+		Address* acc = new Address(Address::Type::variable, 1, "*acc");
 
 		void translateMul(Machinecode*, Address*, Address*, Address*);
 

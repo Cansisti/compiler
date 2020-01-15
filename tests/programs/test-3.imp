@@ -1,0 +1,20 @@
+[ If test ]
+DECLARE
+	a
+BEGIN
+	a ASSIGN -10;
+	IF a LE -11 THEN
+		WRITE -1;
+	ELSE
+		WRITE 1;
+	ENDIF
+	IF a GEQ -10 THEN
+		IF a NEQ -10 THEN
+			WRITE 3;
+		ELSE
+			WRITE 2;
+		ENDIF
+	ELSE
+		WRITE -2;
+	ENDIF
+END

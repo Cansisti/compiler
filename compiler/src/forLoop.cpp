@@ -64,10 +64,11 @@ void ForLoop::translate(const Program* program, Intercode* code) const {
 	auto f = getValueAddress(program, code, from);
 	code->add(Intercode::Operation::assign, c, Intercode::not_an_addr, f);
 	auto t = Declaration::next_address++;
-	code->declare(t, Address::Type::variable, "forloop 'to'");
+	code->declare(t, Address::Type::variable, "*t");
 	code->add(Intercode::Operation::assign, t, Intercode::not_an_addr, getValueAddress(program, code, to));
-	auto begin_label = code->generateLabel();
-	auto end_label = code->generateLabel();
+	code->add(Intercode::Operation::inc, t);
+	auto begin_label = code->generateLabel("f-beg");
+	auto end_label = code->generateLabel("f-end");
 	code->putLabel(begin_label);
 	code->add(Intercode::Operation::sub, c, Intercode::not_an_addr, t);
 	code->add(Intercode::Operation::jump_zero, end_label);

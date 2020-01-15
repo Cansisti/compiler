@@ -1,6 +1,13 @@
+[ Simple for loop ]
 DECLARE
-	a
+	a, t(1:10)
 BEGIN
-	a ASSIGN 3 TIMES 8;
+	a ASSIGN 0;
+	FOR i FROM 1 TO 10 DO
+		t(i) ASSIGN i;
+	ENDFOR
+	FOR i FROM 1 TO 10 DO
+		a ASSIGN a PLUS t(i);
+	ENDFOR
 	WRITE a;
 END
