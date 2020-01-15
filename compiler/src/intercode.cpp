@@ -143,8 +143,6 @@ void Intercode::translate(Machinecode* code) {
 void Intercode::translateMul(Machinecode* code, Address* a0, Address* a1, Address* a2) {
 	code->add(Machinecode::Operation::sub);
 	code->add(Machinecode::Operation::store, acc);
-	code->add(Machinecode::Operation::inc);
-	code->add(Machinecode::Operation::store, r5);
 
 	code->add(Machinecode::Operation::load, a0, a1);
 	code->add(Machinecode::Operation::store, r2);
@@ -152,27 +150,7 @@ void Intercode::translateMul(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::load, a2);
 	code->add(Machinecode::Operation::store, r4);
 
-	auto left_negative = generateLabel();
-	auto check_right_negative = generateLabel();
-	auto right_negative = generateLabel();
-	auto end_check = generateLabel();
-
-	code->add(Machinecode::Operation::load, r2);
-	code->add(Machinecode::Operation::jneg, vars[left_negative]);
-	code->add(Machinecode::Operation::jump, vars[check_right_negative]);
-	code->add(Machinecode::Operation::label, vars[left_negative]);
-	code->add(Machinecode::Operation::load, r5);
-	code->add(Machinecode::Operation::dec);
-	code->add(Machinecode::Operation::store, r5);
-	code->add(Machinecode::Operation::label, vars[check_right_negative]);
-	code->add(Machinecode::Operation::load, r4);
-	code->add(Machinecode::Operation::jneg, vars[right_negative]);
-	code->add(Machinecode::Operation::jump, vars[end_check]);
-	code->add(Machinecode::Operation::label, vars[right_negative]);
-	code->add(Machinecode::Operation::load, r5);
-	code->add(Machinecode::Operation::dec);
-	code->add(Machinecode::Operation::store, r5);
-	code->add(Machinecode::Operation::label, vars[end_check]);
+	theTrickOfSign(code, r2, r4);
 
 	auto loop = generateLabel();
 	auto finish_r2_pos = generateLabel();
@@ -358,7 +336,6 @@ void Intercode::factorize(Machinecode* code, Address* num, Address* power_of_to)
 	code->add(Machinecode::Operation::label, vars[end]);
 }
 
-// TODO a DIV 0 == 0, 0r
 void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Address* a2) {
 	code->add(Machinecode::Operation::sub);
 	code->add(Machinecode::Operation::store, acc); // count here
@@ -390,6 +367,11 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::jneg, vars[end_result_zero]); // if right is more
 	code->add(Machinecode::Operation::jzero, vars[end_result_one]); // if they the same
 
+	theTrickOfSign(code, r4, rt);
+	// TODO
+	// get rid of sign
+	// put right sign between end_loop and end
+
 	// the magic
 	// ---------
 	auto loop = generateLabel();
@@ -398,7 +380,7 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 
 	// before start r0 = r4
 	code->add(Machinecode::Operation::label, vars[loop]); // label loop
-	// maybe 2*r0 fits?
+	// maybe 2*r0 fits? PROBLEM HERE IF r0 < 0 !!!
 	code->add(Machinecode::Operation::load, r0);
 	code->add(Machinecode::Operation::shift, code->cp1);
 	code->add(Machinecode::Operation::store, r0);
@@ -494,4 +476,31 @@ void Intercode::save(std::ofstream& file) {
 		if(command.a2 and command.a2->name != "") file << command.a2->name << "\t"; else file << command.a2 << "\t";
 		file << std::endl;
 	}
+}
+
+void Intercode::theTrickOfSign(Machinecode* code, Address* left, Address* right) {
+	auto left_negative = generateLabel();
+	auto check_right_negative = generateLabel();
+	auto right_negative = generateLabel();
+	auto end_check = generateLabel();
+
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::inc);
+	code->add(Machinecode::Operation::store, r5);
+	code->add(Machinecode::Operation::load, left);
+	code->add(Machinecode::Operation::jneg, vars[left_negative]);
+	code->add(Machinecode::Operation::jump, vars[check_right_negative]);
+	code->add(Machinecode::Operation::label, vars[left_negative]);
+	code->add(Machinecode::Operation::load, r5);
+	code->add(Machinecode::Operation::dec);
+	code->add(Machinecode::Operation::store, r5);
+	code->add(Machinecode::Operation::label, vars[check_right_negative]);
+	code->add(Machinecode::Operation::load, right);
+	code->add(Machinecode::Operation::jneg, vars[right_negative]);
+	code->add(Machinecode::Operation::jump, vars[end_check]);
+	code->add(Machinecode::Operation::label, vars[right_negative]);
+	code->add(Machinecode::Operation::load, r5);
+	code->add(Machinecode::Operation::dec);
+	code->add(Machinecode::Operation::store, r5);
+	code->add(Machinecode::Operation::label, vars[end_check]);
 }

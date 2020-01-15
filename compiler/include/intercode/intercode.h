@@ -73,6 +73,14 @@ class Intercode {
 		void translateDiv(Machinecode*, Address*, Address*, Address*);
 
 		/**
+		 * Leaves in r5:
+		 *  0 - if sign is different
+		 *  1 - if both are positive
+		 * -1 - if both are negative
+		 **/
+		void theTrickOfSign(Machinecode*, Address*, Address*);
+
+		/**
 		 * Factorize num into power of to and remainder.
 		 * Uses r0.
 		 * Does not modify num.
