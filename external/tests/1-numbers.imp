@@ -26,7 +26,7 @@ BEGIN
 	tab(-5) ASSIGN tab(0) DIV tab(-4);
 	t(-5) ASSIGN tab(0);
 
-	READ h;
+	h ASSIGN 123;
 	i ASSIGN 1;
 	j ASSIGN h PLUS c;
 	

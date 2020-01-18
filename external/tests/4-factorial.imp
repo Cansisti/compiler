@@ -5,7 +5,7 @@
 DECLARE
   s(0:100), n, m, a, j
 BEGIN
-    READ n;
+    n ASSIGN 20;
     s(0) ASSIGN 1;
     m ASSIGN n;
     FOR i FROM 1 TO m DO

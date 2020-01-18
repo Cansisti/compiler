@@ -364,21 +364,21 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	getRidOfSign(code, r4);
 	getRidOfSign(code, rt);
 
+	auto exceeded = generateLabel();
 	// not a trick but still
 	// got rt here from last load/store
 	code->add(Machinecode::Operation::sub, r4);
-	code->add(Machinecode::Operation::jneg, vars[end_result_zero]); // if right is more
+	code->add(Machinecode::Operation::jneg, vars[exceeded]); // if right is more
 	code->add(Machinecode::Operation::jzero, vars[end_result_one]); // if they the same
 
 	// the magic
 	// ---------
 	auto loop = generateLabel();
-	auto exceeded = generateLabel();
 	auto end_loop = generateLabel();
 
 	// before start r0 = r4
 	code->add(Machinecode::Operation::label, vars[loop]); // label loop
-	// maybe 2*r0 fits? PROBLEM HERE IF r0 < 0 !!!
+	// maybe 2*r0 fits? PROBLEM HERE IF r0 < 0 (getRidOfSign fixes it)
 	code->add(Machinecode::Operation::load, r0);
 	code->add(Machinecode::Operation::shift, code->cp1);
 	code->add(Machinecode::Operation::store, r0);
@@ -408,6 +408,7 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::jump, vars[loop]); // well then, keep it up
 	code->add(Machinecode::Operation::label, vars[end_loop]); // label end_loop
 	
+	// change those signs, before you go
 	auto change_sign_end = generateLabel();
 	auto change_sign = generateLabel();
 
@@ -416,8 +417,28 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::jump, vars[change_sign_end]);
 	code->add(Machinecode::Operation::label, vars[change_sign]);
 	code->add(Machinecode::Operation::sub, acc);
+	code->add(Machinecode::Operation::dec);
 	code->add(Machinecode::Operation::store, acc);
+
+	code->add(Machinecode::Operation::load, rt);
+	code->add(Machinecode::Operation::sub, r4);
+	code->add(Machinecode::Operation::store, rt);
 	code->add(Machinecode::Operation::label, vars[change_sign_end]);
+
+	// to satisfy alien's civilization negative modulo
+	auto dividee_is_negative = generateLabel();
+	auto end_dividee_is_negative = generateLabel();
+	code->add(Machinecode::Operation::load, a0, a1);
+	code->add(Machinecode::Operation::jneg, vars[dividee_is_negative]);
+	code->add(Machinecode::Operation::jump, vars[end_dividee_is_negative]);
+	code->add(Machinecode::Operation::label, vars[dividee_is_negative]);
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::sub, rt);
+	code->add(Machinecode::Operation::store, rt);
+	code->add(Machinecode::Operation::label, vars[end_dividee_is_negative]);
+
+	// TODO MOD SIGN
+	// TODO CHECK IN TEST (AND IMPLEMENT?) "A DIV -1" AND IT'S SIGNS
 
 	code->add(Machinecode::Operation::jump, vars[end]);
 

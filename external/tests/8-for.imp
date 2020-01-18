@@ -5,9 +5,9 @@
 DECLARE
 	a, b, c
 BEGIN
-	READ a;
-	READ b;
-	READ c;
+	a ASSIGN 12;
+	b ASSIGN 23;
+	c ASSIGN 34;
 	FOR i FROM 9 DOWNTO 0 DO
 		FOR j FROM 0 TO i DO
 			FOR k FROM 0 TO j DO

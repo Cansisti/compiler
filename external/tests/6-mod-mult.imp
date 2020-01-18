@@ -7,9 +7,9 @@
 DECLARE
     a, b, c, wynik, pot, wybor
 BEGIN
-    READ a;
-    READ b;
-    READ c;
+    a ASSIGN 1234567890;
+    b ASSIGN 1234567890987654321;
+    c ASSIGN 987654321;
     wynik ASSIGN 1;
     pot ASSIGN a MOD c;
     WHILE b GE 0 DO

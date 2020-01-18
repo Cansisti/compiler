@@ -66,7 +66,7 @@ void ForLoop::translate(const Program* program, Intercode* code) const {
 	auto t = Declaration::next_address++;
 	code->declare(t, Address::Type::variable, "*t");
 	code->add(Intercode::Operation::assign, t, Intercode::not_an_addr, getValueAddress(program, code, to));
-	code->add(Intercode::Operation::inc, t);
+	code->add(modifier == Modifier::up ? Intercode::Operation::inc : Intercode::Operation::dec, t);
 	auto begin_label = code->generateLabel("f-beg");
 	auto end_label = code->generateLabel("f-end");
 	code->putLabel(begin_label);

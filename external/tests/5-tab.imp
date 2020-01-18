@@ -3,14 +3,14 @@ DECLARE
 	n, j, ta(0:25), tb(0:25), tc(0:25)
 BEGIN
 	n  ASSIGN  25;
-	tc(0)  ASSIGN  n;
-	tc(n)  ASSIGN  n MINUS n;
-	FOR i FROM tc(0) DOWNTO tc(n) DO
-		ta(i)  ASSIGN  i;
-		tb(i)  ASSIGN  n MINUS i;
+	tc(0)  ASSIGN  n; [ 25 ]
+	tc(n)  ASSIGN  n MINUS n; [ 0 ]
+	FOR i FROM tc(0) DOWNTO tc(n) DO [ 25 -> 0 ]
+		ta(i)  ASSIGN  i; [ i ]
+		tb(i)  ASSIGN  n MINUS i; [ 25 - i ]
 	ENDFOR
-	FOR i FROM tc(n) TO tc(0) DO
-		tc(i)  ASSIGN  ta(i) TIMES tb(i);
+	FOR i FROM tc(n) TO tc(0) DO [ 25 -> 0 ]
+		tc(i)  ASSIGN  ta(i) TIMES tb(i); [ i * (25 - i) ]
 	ENDFOR
 	FOR i FROM 0 TO n DO
 		WRITE tc(i);

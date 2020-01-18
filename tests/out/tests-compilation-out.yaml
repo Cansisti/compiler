@@ -18,6 +18,10 @@ tests:
   stdout: ''
 - sh: ./build/cmp ./external/tests/6-mod-mult.imp ./tests/build/6.mr
   stdout: ''
+- sh: ./build/cmp ./external/tests/7-loopiii-000.imp ./tests/build/7-000.mr
+  stdout: ''
+- sh: ./build/cmp ./external/tests/7-loopiii-102.imp ./tests/build/7-102.mr
+  stdout: ''
 - sh: ./build/cmp ./external/tests/7-loopiii.imp ./tests/build/7.mr
   stdout: ''
 - sh: ./build/cmp ./external/tests/8-for.imp ./tests/build/8.mr

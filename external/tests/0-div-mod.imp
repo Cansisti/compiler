@@ -5,8 +5,8 @@
 DECLARE
 	a, b, c
 BEGIN
-	READ a;
-	READ b;
+	a ASSIGN 1;
+	b ASSIGN 0;
 	c ASSIGN a DIV a;
 	WRITE c;
 	c ASSIGN a DIV b;

@@ -6,7 +6,7 @@ DECLARE
   tab(-987654321:1234567890),
   a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
 BEGIN
-  READ tab(-121212121);
+  tab(-121212121) ASSIGN 1;
   a ASSIGN tab(-121212121);
   b ASSIGN a;
   c ASSIGN b PLUS a;

@@ -10,3 +10,14 @@ tests:
 - sh: ./build/vm ./tests/build/test-4.mr
 - sh: ./build/vm ./tests/build/test-5.mr
 - sh: ./build/vm ./tests/build/test-6.mr
+- sh: ./build/vm ./tests/build/0.mr
+- sh: ./build/vm ./tests/build/1.mr
+- sh: ./build/vm ./tests/build/2.mr
+- sh: ./build/vm ./tests/build/3.mr
+- sh: ./build/vm ./tests/build/4.mr
+- sh: ./build/vm ./tests/build/5.mr
+# - sh: ./build/vm ./tests/build/6.mr
+- sh: ./build/vm ./tests/build/7-000.mr
+- sh: ./build/vm ./tests/build/7-102.mr
+- sh: ./build/vm ./tests/build/8.mr
+- sh: ./build/vm ./tests/build/9.mr
