@@ -16,7 +16,7 @@ tests:
 - sh: ./build/vm ./tests/build/3.mr
 - sh: ./build/vm ./tests/build/4.mr
 - sh: ./build/vm ./tests/build/5.mr
-# - sh: ./build/vm ./tests/build/6.mr
+- sh: ./build/vm ./tests/build/6.mr
 - sh: ./build/vm ./tests/build/7-000.mr
 - sh: ./build/vm ./tests/build/7-102.mr
 - sh: ./build/vm ./tests/build/8.mr
