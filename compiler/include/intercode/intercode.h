@@ -71,6 +71,7 @@ class Intercode {
 
 		void translateMul(Machinecode*, Address*, Address*, Address*);
 		void translateDiv(Machinecode*, Address*, Address*, Address*);
+		void translateDiv_v2(Machinecode*, Address*, Address*, Address*);
 
 		/**
 		 * Leaves in r5:
@@ -91,4 +92,6 @@ class Intercode {
 		 * Remainder is left at p0.
 		 **/
 		void factorize(Machinecode*, Address* num, Address* power_of_to);
+
+		void loadPerformStore(Machinecode*, Machinecode::Operation, Address*);
 };

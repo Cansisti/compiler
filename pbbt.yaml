@@ -1,1 +1,2 @@
 input: ./tests/all.yaml
+quiet: true

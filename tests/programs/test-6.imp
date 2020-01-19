@@ -6,9 +6,9 @@ BEGIN
 	WRITE a;
 	a ASSIGN 1 MOD 3; [ nope ]
 	WRITE a;
-	a ASSIGN 121312831 DIV 1; [ not impressive ]
+	a ASSIGN 123 DIV 1; [ not impressive ]
 	WRITE a;
-	a ASSIGN 121312831 MOD 1; [ not impressive ]
+	a ASSIGN 123 MOD 1; [ not impressive ]
 	WRITE a;
 	a ASSIGN 987654321 DIV 987654321; [ almost, almost ]
 	WRITE a;
@@ -54,5 +54,27 @@ BEGIN
 	a ASSIGN 1 DIV -3;
 	WRITE a;
 	a ASSIGN 1 MOD -3;
+	WRITE a;
+
+	[ 16 div 3 ]
+
+	a ASSIGN 16 DIV 3;
+	WRITE a;
+	a ASSIGN 16 MOD 3;
+	WRITE a;
+
+	a ASSIGN 16 DIV -3;
+	WRITE a;
+	a ASSIGN 16 MOD -3;
+	WRITE a;
+
+	a ASSIGN -16 DIV 3;
+	WRITE a;
+	a ASSIGN -16 MOD 3;
+	WRITE a;
+
+	a ASSIGN -16 DIV -3;
+	WRITE a;
+	a ASSIGN -16 MOD -3;
 	WRITE a;
 END

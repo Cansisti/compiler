@@ -88,14 +88,15 @@ void Intercode::translate(Machinecode* code) {
 				break;
 			}
 			case Operation::div: {
-				translateDiv(code, command.a0, command.a1, command.a2);
+				translateDiv_v2(code, command.a0, command.a1, command.a2);
 				code->add(Machinecode::Operation::load, acc);
 				code->add(Machinecode::Operation::store, rt);
 				break;
 			}
 			case Operation::mod: {
-				translateDiv(code, command.a0, command.a1, command.a2);
-				// hope and pray it's already in rt
+				translateDiv_v2(code, command.a0, command.a1, command.a2);
+				code->add(Machinecode::Operation::load, r1);
+				code->add(Machinecode::Operation::store, rt);
 				break;
 			}
 			case Operation::inc: {
@@ -546,4 +547,90 @@ void Intercode::getRidOfSign(Machinecode* code, Address* a) {
 	code->add(Machinecode::Operation::sub, a);
 	code->add(Machinecode::Operation::store, a);
 	code->add(Machinecode::Operation::label, vars[end]);
+}
+
+void Intercode::translateDiv_v2(Machinecode* code, Address* a0, Address* a1, Address* a2) {
+	auto finish = generateLabel();
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::store, acc);
+	code->add(Machinecode::Operation::store, r1);
+
+	code->add(Machinecode::Operation::load, a2);
+	code->add(Machinecode::Operation::jzero, vars[finish]);
+	code->add(Machinecode::Operation::store, r0);
+
+	code->add(Machinecode::Operation::load, a0, a1);
+	code->add(Machinecode::Operation::store, r1);
+
+	theTrickOfSign(code, r1, r0);
+
+	auto sign_different = generateLabel();
+	code->add(Machinecode::Operation::load, r5); // it should be already here, but take it easy
+	code->add(Machinecode::Operation::jzero, vars[sign_different]);
+
+	{ // SAME SIGN - add here, until sign changes
+		code->add(Machinecode::Operation::load, r1);
+		auto dividee_positive = generateLabel();
+		code->add(Machinecode::Operation::jpos, vars[dividee_positive]);
+		{ // DIVIDEE NEGATIVE - sign changes when r1 is POSITIVE, but jump before!
+			auto begin = generateLabel();
+			code->add(Machinecode::Operation::label, vars[begin]);
+			code->add(Machinecode::Operation::jzero, vars[finish]);
+				code->add(Machinecode::Operation::load, r1);
+				code->add(Machinecode::Operation::sub, r0);
+			code->add(Machinecode::Operation::jpos, vars[finish]);
+				code->add(Machinecode::Operation::store, r1);
+				loadPerformStore(code, Machinecode::Operation::inc, acc);
+			code->add(Machinecode::Operation::jump, vars[begin]);
+		}
+		{ // DIVIDEE POSITIVE - sign changes when r1 is NEGATIVE, but jump before!
+			code->add(Machinecode::Operation::label, vars[dividee_positive]);
+			auto begin = generateLabel();
+			code->add(Machinecode::Operation::label, vars[begin]);
+			code->add(Machinecode::Operation::jzero, vars[finish]);
+				code->add(Machinecode::Operation::load, r1);
+				code->add(Machinecode::Operation::sub, r0);
+			code->add(Machinecode::Operation::jneg, vars[finish]);
+				code->add(Machinecode::Operation::store, r1);
+				loadPerformStore(code, Machinecode::Operation::inc, acc);
+			code->add(Machinecode::Operation::jump, vars[begin]);
+		}
+	}
+
+	{ // DIFFERENT SIGN
+		code->add(Machinecode::Operation::label, vars[sign_different]);
+		code->add(Machinecode::Operation::load, r1);
+		auto dividee_positive = generateLabel();
+		code->add(Machinecode::Operation::jpos, vars[dividee_positive]);
+		{ // DIVIDEE NEGATIVE - sign changes when r1 is POSITIVE
+			auto begin = generateLabel();
+			code->add(Machinecode::Operation::label, vars[begin]);
+			code->add(Machinecode::Operation::jpos, vars[finish]);
+			code->add(Machinecode::Operation::jzero, vars[finish]);
+				loadPerformStore(code, Machinecode::Operation::dec, acc);
+				code->add(Machinecode::Operation::load, r1);
+				code->add(Machinecode::Operation::add, r0);
+				code->add(Machinecode::Operation::store, r1);
+			code->add(Machinecode::Operation::jump, vars[begin]);	
+		}
+		{ // DIVIDEE POSITIVE - sign changes when r1 is NEGATIVE
+			code->add(Machinecode::Operation::label, vars[dividee_positive]);
+			auto begin = generateLabel();
+			code->add(Machinecode::Operation::label, vars[begin]);
+			code->add(Machinecode::Operation::jneg, vars[finish]);
+			code->add(Machinecode::Operation::jzero, vars[finish]);
+				loadPerformStore(code, Machinecode::Operation::dec, acc);
+				code->add(Machinecode::Operation::load, r1);
+				code->add(Machinecode::Operation::add, r0);
+				code->add(Machinecode::Operation::store, r1);
+			code->add(Machinecode::Operation::jump, vars[begin]);	
+		}
+	}
+	code->add(Machinecode::Operation::label, vars[finish]);
+}
+
+void Intercode::loadPerformStore(Machinecode* code, Machinecode::Operation op, Address* a) {
+	code->add(Machinecode::Operation::load, a);
+	code->add(op);
+	code->add(Machinecode::Operation::store, a);
 }
