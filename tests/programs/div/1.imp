@@ -1,0 +1,13 @@
+DECLARE
+	a
+BEGIN
+	a ASSIGN 10 DIV -5;
+	WRITE a; [ -2 ]
+	a ASSIGN 10 MOD -5;
+	WRITE a; [ 0 ]
+
+	a ASSIGN 10 DIV -4;
+	WRITE a; [ -3 ]
+	a ASSIGN 10 MOD -4;
+	WRITE a; [ -2 ]
+END

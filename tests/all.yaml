@@ -5,3 +5,4 @@ tests:
   - include: ./tests/tests.yaml
   - include: ./tests/programs.yaml
   - include: ./tests/vm.yaml
+  - include: ./tests/div.yaml

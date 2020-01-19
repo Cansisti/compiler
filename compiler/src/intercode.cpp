@@ -554,10 +554,12 @@ void Intercode::translateDiv_v2(Machinecode* code, Address* a0, Address* a1, Add
 	code->add(Machinecode::Operation::sub);
 	code->add(Machinecode::Operation::store, acc);
 	code->add(Machinecode::Operation::store, r1);
+	code->add(Machinecode::Operation::store, r3);
 
 	code->add(Machinecode::Operation::load, a2);
 	code->add(Machinecode::Operation::jzero, vars[finish]);
 	code->add(Machinecode::Operation::store, r0);
+	code->add(Machinecode::Operation::store, r2);
 
 	code->add(Machinecode::Operation::load, a0, a1);
 	code->add(Machinecode::Operation::store, r1);
@@ -572,28 +574,20 @@ void Intercode::translateDiv_v2(Machinecode* code, Address* a0, Address* a1, Add
 		code->add(Machinecode::Operation::load, r1);
 		auto dividee_positive = generateLabel();
 		code->add(Machinecode::Operation::jpos, vars[dividee_positive]);
-		{ // DIVIDEE NEGATIVE - sign changes when r1 is POSITIVE, but jump before!
+		{ // DIVIDEE NEGATIVE - sign changes when r1 is POSITIVE
 			auto begin = generateLabel();
 			code->add(Machinecode::Operation::label, vars[begin]);
 			code->add(Machinecode::Operation::jzero, vars[finish]);
-				code->add(Machinecode::Operation::load, r1);
-				code->add(Machinecode::Operation::sub, r0);
-			code->add(Machinecode::Operation::jpos, vars[finish]);
-				code->add(Machinecode::Operation::store, r1);
-				loadPerformStore(code, Machinecode::Operation::inc, acc);
-			code->add(Machinecode::Operation::jump, vars[begin]);
+				magic(code, Machinecode::Operation::jpos, Machinecode::Operation::sub, Machinecode::Operation::add);
+			code->add(Machinecode::Operation::jump, vars[finish]);
 		}
-		{ // DIVIDEE POSITIVE - sign changes when r1 is NEGATIVE, but jump before!
+		{ // DIVIDEE POSITIVE - sign changes when r1 is NEGATIVE
 			code->add(Machinecode::Operation::label, vars[dividee_positive]);
 			auto begin = generateLabel();
 			code->add(Machinecode::Operation::label, vars[begin]);
 			code->add(Machinecode::Operation::jzero, vars[finish]);
-				code->add(Machinecode::Operation::load, r1);
-				code->add(Machinecode::Operation::sub, r0);
-			code->add(Machinecode::Operation::jneg, vars[finish]);
-				code->add(Machinecode::Operation::store, r1);
-				loadPerformStore(code, Machinecode::Operation::inc, acc);
-			code->add(Machinecode::Operation::jump, vars[begin]);
+				magic(code, Machinecode::Operation::jneg, Machinecode::Operation::sub, Machinecode::Operation::add);
+			code->add(Machinecode::Operation::jump, vars[finish]);
 		}
 	}
 
@@ -607,10 +601,12 @@ void Intercode::translateDiv_v2(Machinecode* code, Address* a0, Address* a1, Add
 			code->add(Machinecode::Operation::label, vars[begin]);
 			code->add(Machinecode::Operation::jpos, vars[finish]);
 			code->add(Machinecode::Operation::jzero, vars[finish]);
-				loadPerformStore(code, Machinecode::Operation::dec, acc);
-				code->add(Machinecode::Operation::load, r1);
-				code->add(Machinecode::Operation::add, r0);
-				code->add(Machinecode::Operation::store, r1);
+				magic(code, Machinecode::Operation::jpos, Machinecode::Operation::add, Machinecode::Operation::sub, [&](){
+					loadPerformStore(code, Machinecode::Operation::dec, acc);
+					code->add(Machinecode::Operation::load, r1);
+					code->add(Machinecode::Operation::add, r2);
+					code->add(Machinecode::Operation::store, r1);
+				});
 			code->add(Machinecode::Operation::jump, vars[begin]);	
 		}
 		{ // DIVIDEE POSITIVE - sign changes when r1 is NEGATIVE
@@ -619,10 +615,12 @@ void Intercode::translateDiv_v2(Machinecode* code, Address* a0, Address* a1, Add
 			code->add(Machinecode::Operation::label, vars[begin]);
 			code->add(Machinecode::Operation::jneg, vars[finish]);
 			code->add(Machinecode::Operation::jzero, vars[finish]);
-				loadPerformStore(code, Machinecode::Operation::dec, acc);
-				code->add(Machinecode::Operation::load, r1);
-				code->add(Machinecode::Operation::add, r0);
-				code->add(Machinecode::Operation::store, r1);
+				magic(code, Machinecode::Operation::jneg, Machinecode::Operation::add, Machinecode::Operation::sub, [&](){
+					loadPerformStore(code, Machinecode::Operation::dec, acc);
+					code->add(Machinecode::Operation::load, r1);
+					code->add(Machinecode::Operation::add, r2);
+					code->add(Machinecode::Operation::store, r1);
+				});
 			code->add(Machinecode::Operation::jump, vars[begin]);	
 		}
 	}
@@ -633,4 +631,53 @@ void Intercode::loadPerformStore(Machinecode* code, Machinecode::Operation op, A
 	code->add(Machinecode::Operation::load, a);
 	code->add(op);
 	code->add(Machinecode::Operation::store, a);
+}
+
+void Intercode::magic(
+	Machinecode* code,
+	Machinecode::Operation exceeded_policy,
+	Machinecode::Operation exceed_operation,
+	Machinecode::Operation acc_operation,
+	std::function<void()> on_remainder_callback
+) {
+	auto loop = generateLabel();
+	auto exceeded = generateLabel();
+	auto check_remainder = generateLabel();
+	auto quit = generateLabel();
+	code->add(Machinecode::Operation::label, vars[loop]);
+		code->add(Machinecode::Operation::load, r1);
+		code->add(exceed_operation, r2);
+		code->add(exceeded_policy, vars[exceeded]);
+		loadPerformStore(code, Machinecode::Operation::inc, r3);
+		code->add(Machinecode::Operation::load, r2);
+		code->add(Machinecode::Operation::shift, code->cp1);
+		code->add(Machinecode::Operation::store, r2);
+		code->add(Machinecode::Operation::jump, vars[loop]);
+	code->add(Machinecode::Operation::label, vars[exceeded]);
+		code->add(Machinecode::Operation::load, r3);
+		code->add(Machinecode::Operation::jzero, vars[check_remainder]);
+		code->add(Machinecode::Operation::dec);
+		code->add(Machinecode::Operation::store, r4);
+		code->add(Machinecode::Operation::sub);
+		code->add(Machinecode::Operation::store, r3);
+		code->add(Machinecode::Operation::inc);
+		code->add(Machinecode::Operation::shift, r4);
+		code->add(Machinecode::Operation::store, r4);
+		code->add(Machinecode::Operation::load, acc);
+		code->add(acc_operation, r4);
+		code->add(Machinecode::Operation::store, acc);
+		code->add(Machinecode::Operation::load, r2);
+		code->add(Machinecode::Operation::shift, code->cn1);
+		code->add(Machinecode::Operation::store, r2);
+		code->add(Machinecode::Operation::load, r1);
+		code->add(exceed_operation, r2);
+		code->add(Machinecode::Operation::store, r1);
+		code->add(Machinecode::Operation::load, r0);
+		code->add(Machinecode::Operation::store, r2);
+		code->add(Machinecode::Operation::jump, vars[loop]);
+	code->add(Machinecode::Operation::label, vars[check_remainder]);
+		code->add(Machinecode::Operation::load, r1);
+		code->add(Machinecode::Operation::jzero, vars[quit]);
+		on_remainder_callback();
+	code->add(Machinecode::Operation::label, vars[quit]);
 }

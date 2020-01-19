@@ -1,0 +1,9 @@
+title: Running [div] programs from /build
+output: ./tests/out/vm-div-out.yaml
+suite: vm-div
+
+tests:
+  - sh: ./build/vm ./tests/build/div0.mr
+  - sh: ./build/vm ./tests/build/div1.mr
+  - sh: ./build/vm ./tests/build/div2.mr
+  - sh: ./build/vm ./tests/build/div3.mr

@@ -3,6 +3,7 @@
 #include <map>
 #include <fstream>
 #include <string>
+#include <functional>
 
 #include "intercode/address.h"
 #include "machinecode/machinecode.h"
@@ -94,4 +95,11 @@ class Intercode {
 		void factorize(Machinecode*, Address* num, Address* power_of_to);
 
 		void loadPerformStore(Machinecode*, Machinecode::Operation, Address*);
+		void magic(
+			Machinecode* code,
+			Machinecode::Operation exceeded_policy,
+			Machinecode::Operation exceed_operation,
+			Machinecode::Operation acc_operation,
+			std::function<void()> on_remainder_callback = [](){}
+		);
 };

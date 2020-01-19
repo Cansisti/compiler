@@ -1,0 +1,6 @@
+DECLARE
+	a
+BEGIN
+	a ASSIGN 24 DIV 2;
+	WRITE a;
+END

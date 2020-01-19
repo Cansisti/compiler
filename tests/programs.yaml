@@ -10,3 +10,7 @@ tests:
 - sh: ./build/cmp ./tests/programs/test-4.imp ./tests/build/test-4.mr
 - sh: ./build/cmp ./tests/programs/test-5.imp ./tests/build/test-5.mr
 - sh: ./build/cmp ./tests/programs/test-6.imp ./tests/build/test-6.mr
+- sh: ./build/cmp ./tests/programs/div/0.imp ./tests/build/div0.mr
+- sh: ./build/cmp ./tests/programs/div/1.imp ./tests/build/div1.mr
+- sh: ./build/cmp ./tests/programs/div/2.imp ./tests/build/div2.mr
+- sh: ./build/cmp ./tests/programs/div/3.imp ./tests/build/div3.mr

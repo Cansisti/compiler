@@ -152,6 +152,9 @@ tests:
     > 46
     > 24
     > 0
+- sh: ./build/vm ./tests/build/6.mr
+  stdout: |
+    > 674106858
 - sh: ./build/vm ./tests/build/7-000.mr
   stdout: |
     > 31000
