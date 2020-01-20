@@ -77,9 +77,9 @@ struct Program::ValueValidateVisitor {
 				return true;
 			}
 			auto theId = std::visit(Anything::AnyVisitor(), *id);
-			spdlog::error("{}: use of not initiated variable '{}'", theId.line, theId.name);
+			spdlog::warn("{}: use of not initiated variable '{}'", theId.line, theId.name);
 		}
-		return false;
+		return true;
 	}
 
 	bool operator()(const Num num) {
