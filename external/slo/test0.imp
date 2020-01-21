@@ -27,4 +27,5 @@ BEGIN
             ENDFOR
         ENDFOR
     ENDFOR
+    WRITE x;
 END

@@ -9,18 +9,18 @@ tests:
   exit: 102
 - sh: ./build/cmp ./external/programs/error2.imp -
   exit: 102
-- sh: ./build/cmp ./external/programs/error3.imp -
-  exit: 102
+- sh: ./build/cmp ./external/programs/error3.imp ./tests/build/-3
+  exit: 0
 - sh: ./build/cmp ./external/programs/error4.imp -
   exit: 1
-- sh: ./build/cmp ./external/programs/error5.imp -
-  exit: 102
+- sh: ./build/cmp ./external/programs/error5.imp ./tests/build/-5
+  exit: 0
 - sh: ./build/cmp ./external/programs/error6.imp -
   exit: 102
 - sh: ./build/cmp ./external/programs/error7.imp -
   exit: 102
 - sh: ./build/cmp ./external/programs/error8.imp -
-  exit: 102
+  exit: -11
 - sh: ./build/cmp ./tests/programs/test-ValidateCounterViolationVisitor-1.imp -
   exit: 102
 - sh: ./build/cmp ./tests/programs/test-ValidateCounterViolationVisitor-2.imp -

@@ -59,6 +59,8 @@ bool ForLoop::validateCounterViolation(PId counter) const {
 }
 
 void ForLoop::translate(const Program* program, Intercode* code) const {
+	auto begin_label = code->generateLabel("f-beg");
+	auto end_label = code->generateLabel("f-end");
 	this->program->declare(code);
 	auto c = this->program->findDeclaration(counter)->address;
 	auto f = getValueAddress(program, code, from);
@@ -66,9 +68,9 @@ void ForLoop::translate(const Program* program, Intercode* code) const {
 	auto t = Declaration::next_address++;
 	code->declare(t, Address::Type::variable, "*t");
 	code->add(Intercode::Operation::assign, t, Intercode::not_an_addr, getValueAddress(program, code, to));
+	code->add(Intercode::Operation::sub, c, Intercode::not_an_addr, t);
+	code->add(modifier == Modifier::up ? Intercode::Operation::jump_pos : Intercode::Operation::jump_neg, end_label);
 	code->add(modifier == Modifier::up ? Intercode::Operation::inc : Intercode::Operation::dec, t);
-	auto begin_label = code->generateLabel("f-beg");
-	auto end_label = code->generateLabel("f-end");
 	code->putLabel(begin_label);
 	code->add(Intercode::Operation::sub, c, Intercode::not_an_addr, t);
 	code->add(Intercode::Operation::jump_zero, end_label);

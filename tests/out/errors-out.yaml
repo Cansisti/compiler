@@ -13,15 +13,21 @@ tests:
 - sh: ./build/cmp ./external/programs/error2.imp -
   stdout: |
     [error] 5: unknown variable 'a'
+- sh: ./build/cmp ./external/programs/error3.imp ./tests/build/-3
+  stdout: |
+    [warning] 6: use of not initiated variable 'a'
 - sh: ./build/cmp ./external/programs/error3.imp -
   stdout: |
-    [error] 6: use of not initiated variable 'a'
+    [warning] 6: use of not initiated variable 'a'
 - sh: ./build/cmp ./external/programs/error4.imp -
   stdout: |
     [error] 3: syntax error (near '1')
+- sh: ./build/cmp ./external/programs/error5.imp ./tests/build/-5
+  stdout: |
+    [warning] 5: use of not initiated variable 'a'
 - sh: ./build/cmp ./external/programs/error5.imp -
   stdout: |
-    [error] 5: use of not initiated variable 'a'
+    [warning] 5: use of not initiated variable 'a'
 - sh: ./build/cmp ./external/programs/error6.imp -
   stdout: |
     [error] 5: wrong usage of table 'b'
