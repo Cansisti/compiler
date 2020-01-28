@@ -5,6 +5,7 @@
 }
 
 %{
+#include <cstdlib>
 #include "common/program.h"
 extern Program* __program;
 
@@ -190,40 +191,73 @@ command: identifier ASSIGN expression SEMICOLON {
 expression: value {
 	$$ = new Expression(std::get<Value*>($1));
 }| value PLUS value {
-	$$ = new Expression(new AnyExpression(new AddExpression(
-		"PLUS",
-		@2.first_line,
-		std::get<Value*>($1),
-		std::get<Value*>($3)
-	)));
+	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		$$ = new Expression(new Value(std::get<Num>(*std::get<Value*>($1)) + std::get<Num>(*std::get<Value*>($3))));
+	}
+	else {
+		$$ = new Expression(new AnyExpression(new AddExpression(
+			"PLUS",
+			@2.first_line,
+			std::get<Value*>($1),
+			std::get<Value*>($3)
+		)));
+	}
 }| value MINUS value {
-	$$ = new Expression(new AnyExpression(new SubExpression(
-		"MINUS",
-		@2.first_line,
-		std::get<Value*>($1),
-		std::get<Value*>($3)
-	)));
+	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		$$ = new Expression(new Value(std::get<Num>(*std::get<Value*>($1)) - std::get<Num>(*std::get<Value*>($3))));
+	}
+	else {
+		$$ = new Expression(new AnyExpression(new SubExpression(
+			"MINUS",
+			@2.first_line,
+			std::get<Value*>($1),
+			std::get<Value*>($3)
+		)));
+	}
 }| value TIMES value {
-	$$ = new Expression(new AnyExpression(new MulExpression(
-		"TIMES",
-		@2.first_line,
-		std::get<Value*>($1),
-		std::get<Value*>($3)
-	)));
+	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		$$ = new Expression(new Value(std::get<Num>(*std::get<Value*>($1)) * std::get<Num>(*std::get<Value*>($3))));
+	}
+	else {
+		$$ = new Expression(new AnyExpression(new MulExpression(
+			"TIMES",
+			@2.first_line,
+			std::get<Value*>($1),
+			std::get<Value*>($3)
+		)));
+	}
 }| value DIV value {
-	$$ = new Expression(new AnyExpression(new DivExpression(
-		"DIV",
-		@2.first_line,
-		std::get<Value*>($1),
-		std::get<Value*>($3)
-	)));
+	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		Num a = std::get<Num>(*std::get<Value*>($1));
+		Num b = std::get<Num>(*std::get<Value*>($3));
+		Num r = b == 0 ? 0 : a / b;
+		if(a*b < 0 and a%b != 0) r -= 1;
+		$$ = new Expression(new Value(r));
+	}
+	else {
+		$$ = new Expression(new AnyExpression(new DivExpression(
+			"DIV",
+			@2.first_line,
+			std::get<Value*>($1),
+			std::get<Value*>($3)
+		)));
+	}
 }| value MOD value {
-	$$ = new Expression(new AnyExpression(new ModExpression(
-		"MOD",
-		@2.first_line,
-		std::get<Value*>($1),
-		std::get<Value*>($3)
-	)));
+	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		Num a = std::get<Num>(*std::get<Value*>($1));
+		Num b = std::get<Num>(*std::get<Value*>($3));
+		Num r = b == 0 ? 0 : a % b;
+		while(r * b < 0) r += b;
+		$$ = new Expression(new Value(r));
+	}
+	else {
+		$$ = new Expression(new AnyExpression(new ModExpression(
+			"MOD",
+			@2.first_line,
+			std::get<Value*>($1),
+			std::get<Value*>($3)
+		)));
+	}
 };
 
 condition: value EQ value {

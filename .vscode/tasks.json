@@ -5,13 +5,32 @@
 			"label": "Build",
 			"type": "shell",
 			"command": "make",
+			"group": "build",
+			"problemMatcher": [
+				"$gcc"
+			]
+		},
+		{
+			"label": "Run cmake",
+			"type": "shell",
+			"command": "cd build && cmake ..",
+			"group": "build"
+		},
+		{
+			"label": "Build (cmake)",
+			"type": "shell",
+			"command": "make -C build",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
 			"problemMatcher": [
-				"$gcc"
-			]
+				{
+					"base": "$gcc",
+					"fileLocation": "relative"
+				}
+			],
+			"dependsOn": [ "Run cmake" ]
 		}
 	]
 }
