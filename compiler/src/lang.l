@@ -2,7 +2,7 @@
 %option nounput
 %{
 #include <string>
-#include "bison.tab.h"
+#include "bison.tab.hpp"
 #define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;
 %}
 

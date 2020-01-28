@@ -1,6 +1,6 @@
 #include <spdlog/spdlog.h>
 #include <cxxopts.hpp>
-#include "bison.tab.h"
+#include "bison.tab.hpp"
 #include "common/program.h"
 #include <fstream>
 
