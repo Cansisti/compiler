@@ -1,0 +1,14 @@
+DECLARE
+    a(1:3), w, x, y, z
+BEGIN
+    x ASSIGN 4294967297;
+    y ASSIGN 4294967298;
+    a(1) ASSIGN 4294967297;
+    a(2) ASSIGN 4294967298;
+    a(3) ASSIGN a(1) MOD a(2);
+    w ASSIGN 4294967297 MOD 4294967298;
+    z ASSIGN x MOD y;
+    WRITE a(3);
+    WRITE w;
+    WRITE z;
+END

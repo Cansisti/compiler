@@ -1,7 +1,8 @@
 #include "machinecode/machinecode.h"
 #include <assert.h>
-#include <cstdlib>
 #include <spdlog/spdlog.h>
+
+#define abs(x) (x >= 0 ? x : -x)
 
 void Machinecode::add(Machinecode::Operation op, const Address* addr, const Address* offset) {
 	commands.push_back({

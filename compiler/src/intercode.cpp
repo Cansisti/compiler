@@ -192,29 +192,29 @@ void Intercode::translateMul(Machinecode* code, Address* a0, Address* a1, Addres
 
 	// remember r4 * 2^r1
 	code->add(Machinecode::Operation::shift, r1);
-	code->add(Machinecode::Operation::store, rt);
+	code->add(Machinecode::Operation::store, r6);
 
 	// remember r2 * 2^r3
 	code->add(Machinecode::Operation::load, r2);
 	code->add(Machinecode::Operation::shift, r3);
 
 	// sum those two
-	code->add(Machinecode::Operation::add, rt);
-	code->add(Machinecode::Operation::store, rt);
+	code->add(Machinecode::Operation::add, r6);
+	code->add(Machinecode::Operation::store, r6);
 
 	// change it's sign
-	code->add(Machinecode::Operation::sub, rt);
-	code->add(Machinecode::Operation::sub, rt);
-	code->add(Machinecode::Operation::store, rt);
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::sub, r6);
+	code->add(Machinecode::Operation::store, r6);
 
 	// calculate 2^(r1+r3)
-	code->add(Machinecode::Operation::sub, rt);
+	code->add(Machinecode::Operation::sub);
 	code->add(Machinecode::Operation::inc);
 	code->add(Machinecode::Operation::shift, r1);
 	code->add(Machinecode::Operation::shift, r3);
 
 	// add prev two
-	code->add(Machinecode::Operation::add, rt);
+	code->add(Machinecode::Operation::add, r6);
 
 	// remember full thing
 	code->add(Machinecode::Operation::add, acc);
@@ -359,15 +359,15 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 
 	// save those
 	code->add(Machinecode::Operation::load, a0, a1);
-	code->add(Machinecode::Operation::store, rt);
+	code->add(Machinecode::Operation::store, r6);
 
-	theTrickOfSign(code, r4, rt);
+	theTrickOfSign(code, r4, r6);
 	getRidOfSign(code, r4);
-	getRidOfSign(code, rt);
+	getRidOfSign(code, r6);
 
 	auto exceeded = generateLabel();
 	// not a trick but still
-	// got rt here from last load/store
+	// got r6 here from last load/store
 	code->add(Machinecode::Operation::sub, r4);
 	code->add(Machinecode::Operation::jneg, vars[exceeded]); // if right is more
 	code->add(Machinecode::Operation::jzero, vars[end_result_one]); // if they the same
@@ -384,7 +384,7 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::shift, code->cp1);
 	code->add(Machinecode::Operation::store, r0);
 	// does it? does it?
-	code->add(Machinecode::Operation::sub, rt); // threat rt as rest (not divied yet)
+	code->add(Machinecode::Operation::sub, r6); // threat r6 as rest (not divied yet)
 	code->add(Machinecode::Operation::jpos, vars[exceeded]);
 	// yay, it does, remember it
 	code->add(Machinecode::Operation::load, r1);
@@ -401,9 +401,9 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::store, r0); // renew r0
 	code->add(Machinecode::Operation::shift, r1); // how much of it fits already
 	code->add(Machinecode::Operation::store, r2); // why not remember it
-	code->add(Machinecode::Operation::load, rt);
+	code->add(Machinecode::Operation::load, r6);
 	code->add(Machinecode::Operation::sub, r2);
-	code->add(Machinecode::Operation::store, rt); // and have a little less to divide
+	code->add(Machinecode::Operation::store, r6); // and have a little less to divide
 	code->add(Machinecode::Operation::sub, r4); // can it fit any more?
 	code->add(Machinecode::Operation::jneg, vars[end_loop]); // uff, it can't
 	code->add(Machinecode::Operation::jump, vars[loop]); // well then, keep it up
@@ -421,9 +421,9 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::dec);
 	code->add(Machinecode::Operation::store, acc);
 
-	code->add(Machinecode::Operation::load, rt);
+	code->add(Machinecode::Operation::load, r6);
 	code->add(Machinecode::Operation::sub, r4);
-	code->add(Machinecode::Operation::store, rt);
+	code->add(Machinecode::Operation::store, r6);
 	code->add(Machinecode::Operation::label, vars[change_sign_end]);
 
 	// to satisfy alien's civilization negative modulo
@@ -434,8 +434,8 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 	code->add(Machinecode::Operation::jump, vars[end_dividee_is_negative]);
 	code->add(Machinecode::Operation::label, vars[dividee_is_negative]);
 	code->add(Machinecode::Operation::sub);
-	code->add(Machinecode::Operation::sub, rt);
-	code->add(Machinecode::Operation::store, rt);
+	code->add(Machinecode::Operation::sub, r6);
+	code->add(Machinecode::Operation::store, r6);
 	code->add(Machinecode::Operation::label, vars[end_dividee_is_negative]);
 
 	// TODO MOD SIGN
@@ -445,30 +445,30 @@ void Intercode::translateDiv(Machinecode* code, Address* a0, Address* a1, Addres
 
 	// those tricks
 	// -----------
-	code->add(Machinecode::Operation::label, vars[end_result_zero]); // if rt - r4 < 0
+	code->add(Machinecode::Operation::label, vars[end_result_zero]); // if r6 - r4 < 0
 	code->add(Machinecode::Operation::sub);
 	code->add(Machinecode::Operation::store, acc); // result is 0
-	code->add(Machinecode::Operation::load, rt);
-	code->add(Machinecode::Operation::store, rt); // remainder is rt
+	code->add(Machinecode::Operation::load, r6);
+	code->add(Machinecode::Operation::store, r6); // remainder is r6
 	code->add(Machinecode::Operation::jump, vars[end]);
 
-	code->add(Machinecode::Operation::label, vars[end_result_one]); // if rt - r4 = 0
+	code->add(Machinecode::Operation::label, vars[end_result_one]); // if r6 - r4 = 0
 	// already got 0 cause jzero in here
-	code->add(Machinecode::Operation::store, rt); // remainder is 0
+	code->add(Machinecode::Operation::store, r6); // remainder is 0
 	code->add(Machinecode::Operation::inc);
 	code->add(Machinecode::Operation::store, acc); // result is 1
 	code->add(Machinecode::Operation::jump, vars[end]);
 
 	code->add(Machinecode::Operation::label, vars[end_result_left]); // if r4 = 1
 	// already got 0 cause jzero in here
-	code->add(Machinecode::Operation::store, rt); // remainder is 0
-	code->add(Machinecode::Operation::load, a0, a1); // careful, as we don't have it yet in rt
+	code->add(Machinecode::Operation::store, r6); // remainder is 0
+	code->add(Machinecode::Operation::load, a0, a1); // careful, as we don't have it yet in r6
 	code->add(Machinecode::Operation::store, acc); // result is a0(a1)
 	code->add(Machinecode::Operation::jump, vars[end]);
 
 	code->add(Machinecode::Operation::label, vars[end_div_by_zero]); // if r4 = 0 !!!
 	// already got 0 cause jzero in here
-	code->add(Machinecode::Operation::store, rt); // remainder is 0 for div 0
+	code->add(Machinecode::Operation::store, r6); // remainder is 0 for div 0
 	code->add(Machinecode::Operation::store, acc); // result is 0 also
 	code->add(Machinecode::Operation::jump, vars[end]);
 
@@ -502,9 +502,12 @@ void Intercode::save(std::ofstream& file) {
 	file << "COMMANDS:" << std::endl;
 	for(auto command: commands) {
 		file << oprs[(int)command.op] << "\t";
-		if(command.a0 and command.a0->name != "") file << command.a0->name << "\t"; else file << command.a0 << "\t";
-		if(command.a1 and command.a1->name != "") file << command.a1->name << "\t"; else file << command.a1 << "\t";
-		if(command.a2 and command.a2->name != "") file << command.a2->name << "\t"; else file << command.a2 << "\t";
+		file << command.a0 << "\t";
+		if(command.a0 and command.a0->name != "") file << "(" << command.a0->name << ")\t";
+		file << command.a1 << "\t";
+		if(command.a1 and command.a1->name != "") file << "(" << command.a1->name << ")\t";
+		file << command.a2 << "\t";
+		if(command.a2 and command.a2->name != "") file << "(" << command.a2->name << ")\t";
 		file << std::endl;
 	}
 }
@@ -553,7 +556,6 @@ void Intercode::translateDiv_v2(Machinecode* code, Address* a0, Address* a1, Add
 	auto finish = generateLabel();
 	code->add(Machinecode::Operation::sub);
 	code->add(Machinecode::Operation::store, acc);
-	code->add(Machinecode::Operation::store, r1);
 	code->add(Machinecode::Operation::store, r3);
 
 	code->add(Machinecode::Operation::load, a2);
@@ -680,4 +682,122 @@ void Intercode::magic(
 		code->add(Machinecode::Operation::jzero, vars[quit]);
 		on_remainder_callback();
 	code->add(Machinecode::Operation::label, vars[quit]);
+}
+
+void Intercode::translateMul_v2(Machinecode* code, Address* a0, Address* a1, Address* a2) {
+	auto finish = generateLabel();
+	code->add(Machinecode::Operation::sub);
+	code->add(Machinecode::Operation::store, acc);
+	code->add(Machinecode::Operation::store, r3);
+	code->add(Machinecode::Operation::store, r6);
+
+	code->add(Machinecode::Operation::load, a2);
+	code->add(Machinecode::Operation::jzero, vars[finish]);
+	code->add(Machinecode::Operation::store, r0);
+	code->add(Machinecode::Operation::store, r2);
+
+	code->add(Machinecode::Operation::load, a0, a1);
+	code->add(Machinecode::Operation::store, r1);
+	code->add(Machinecode::Operation::store, r4);
+
+	theTrickOfSign(code, r1, r2);
+
+	auto sign_different = generateLabel();
+	code->add(Machinecode::Operation::load, r5); // it should be already here, but take it easy
+	code->add(Machinecode::Operation::jzero, vars[sign_different]);
+
+	{ // SAME SIGN
+		code->add(Machinecode::Operation::load, r2);
+		auto right_positive = generateLabel();
+		code->add(Machinecode::Operation::jpos, vars[right_positive]);
+		{ // - -
+			auto begin = generateLabel();
+			code->add(Machinecode::Operation::label, vars[begin]);
+			code->add(Machinecode::Operation::jzero, vars[finish]);
+				
+			code->add(Machinecode::Operation::jump, vars[finish]);
+		}
+		{ // + +
+			code->add(Machinecode::Operation::label, vars[right_positive]);
+			auto begin = generateLabel();
+			auto even = generateLabel();
+			auto zero = generateLabel();
+
+			code->add(Machinecode::Operation::label, vars[begin]);
+			// test if even
+			code->add(Machinecode::Operation::load, r4);
+			code->add(Machinecode::Operation::jzero, vars[zero]);
+			code->add(Machinecode::Operation::shift, code->cn1);
+			code->add(Machinecode::Operation::shift, code->cp1);
+			code->add(Machinecode::Operation::sub, r4);
+			code->add(Machinecode::Operation::jzero, vars[even]);
+
+			// not even
+			loadPerformStore(code, Machinecode::Operation::inc, r6);
+			loadPerformStore(code, Machinecode::Operation::dec, r4);
+			code->add(Machinecode::Operation::jump, vars[begin]);
+
+			// even - got 0 here
+			code->add(Machinecode::Operation::label, vars[even]);
+			loadPerformStore(code, Machinecode::Operation::inc, r3);
+			code->add(Machinecode::Operation::load, r4);
+			code->add(Machinecode::Operation::shift, code->cn1);
+			code->add(Machinecode::Operation::store, r4);
+			code->add(Machinecode::Operation::load, r0);
+			code->add(Machinecode::Operation::shift, code->cp1);
+			code->add(Machinecode::Operation::store, r0);
+			code->add(Machinecode::Operation::jump, vars[begin]);
+
+			// done with this r4
+			code->add(Machinecode::Operation::label, vars[zero]);
+				// remember partial result
+			code->add(Machinecode::Operation::load, r0);
+			code->add(Machinecode::Operation::add, acc);
+			code->add(Machinecode::Operation::store, acc);
+				// calculate ramaining left value
+			code->add(Machinecode::Operation::sub);
+			code->add(Machinecode::Operation::dec);
+			code->add(Machinecode::Operation::shift, r3);
+			code->add(Machinecode::Operation::add, r1);
+			code->add(Machinecode::Operation::store, r4);
+				// reset r0 (right value)
+			code->add(Machinecode::Operation::load, r2);
+			code->add(Machinecode::Operation::store, r0);
+				// test if it's last 1 ---> [finish]
+			code->add(Machinecode::Operation::load, r6);
+			code->add(Machinecode::Operation::dec);
+			code->add(Machinecode::Operation::jzero, vars[finish]);
+				// or reset counters
+			code->add(Machinecode::Operation::sub);
+			code->add(Machinecode::Operation::store, r3);
+			code->add(Machinecode::Operation::store, r6);
+				// and repeat
+			code->add(Machinecode::Operation::jump, vars[begin]);
+		}
+	}
+
+	{ // DIFFERENT SIGN
+		code->add(Machinecode::Operation::label, vars[sign_different]);
+		code->add(Machinecode::Operation::load, r2);
+		auto right_positive = generateLabel();
+		code->add(Machinecode::Operation::jpos, vars[right_positive]);
+		{ // + -
+			auto begin = generateLabel();
+			code->add(Machinecode::Operation::label, vars[begin]);
+			code->add(Machinecode::Operation::jpos, vars[finish]);
+			code->add(Machinecode::Operation::jzero, vars[finish]);
+				
+			code->add(Machinecode::Operation::jump, vars[begin]);	
+		}
+		{ // - +
+			code->add(Machinecode::Operation::label, vars[right_positive]);
+			auto begin = generateLabel();
+			code->add(Machinecode::Operation::label, vars[begin]);
+			code->add(Machinecode::Operation::jneg, vars[finish]);
+			code->add(Machinecode::Operation::jzero, vars[finish]);
+				
+			code->add(Machinecode::Operation::jump, vars[begin]);	
+		}
+	}
+	code->add(Machinecode::Operation::label, vars[finish]);
 }

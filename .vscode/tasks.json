@@ -27,7 +27,7 @@
 			"problemMatcher": [
 				{
 					"base": "$gcc",
-					"fileLocation": "relative"
+					"fileLocation": "autoDetect"
 				}
 			],
 			"dependsOn": [ "Run cmake" ]

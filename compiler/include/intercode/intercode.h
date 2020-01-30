@@ -68,9 +68,11 @@ class Intercode {
 		Address* r3 = new Address(Address::Type::variable, 1, "*r3");
 		Address* r4 = new Address(Address::Type::variable, 1, "*r4");
 		Address* r5 = new Address(Address::Type::variable, 1, "*r5");
+		Address* r6 = new Address(Address::Type::variable, 1, "*r6");
 		Address* acc = new Address(Address::Type::variable, 1, "*acc");
 
 		void translateMul(Machinecode*, Address*, Address*, Address*);
+		void translateMul_v2(Machinecode*, Address*, Address*, Address*);
 		void translateDiv(Machinecode*, Address*, Address*, Address*);
 		void translateDiv_v2(Machinecode*, Address*, Address*, Address*);
 

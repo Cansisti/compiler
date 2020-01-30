@@ -192,6 +192,7 @@ expression: value {
 	$$ = new Expression(std::get<Value*>($1));
 }| value PLUS value {
 	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		spdlog::info("Simplifying expression at {}", @2.first_line);
 		$$ = new Expression(new Value(std::get<Num>(*std::get<Value*>($1)) + std::get<Num>(*std::get<Value*>($3))));
 	}
 	else {
@@ -204,6 +205,7 @@ expression: value {
 	}
 }| value MINUS value {
 	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		spdlog::info("Simplifying expression at {}", @2.first_line);
 		$$ = new Expression(new Value(std::get<Num>(*std::get<Value*>($1)) - std::get<Num>(*std::get<Value*>($3))));
 	}
 	else {
@@ -216,6 +218,7 @@ expression: value {
 	}
 }| value TIMES value {
 	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		spdlog::info("Simplifying expression at {}", @2.first_line);
 		$$ = new Expression(new Value(std::get<Num>(*std::get<Value*>($1)) * std::get<Num>(*std::get<Value*>($3))));
 	}
 	else {
@@ -228,6 +231,7 @@ expression: value {
 	}
 }| value DIV value {
 	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		spdlog::info("Simplifying expression at {}", @2.first_line);
 		Num a = std::get<Num>(*std::get<Value*>($1));
 		Num b = std::get<Num>(*std::get<Value*>($3));
 		Num r = b == 0 ? 0 : a / b;
@@ -244,6 +248,7 @@ expression: value {
 	}
 }| value MOD value {
 	if(std::get<Value*>($1)->index() == 1 and std::get<Value*>($3)->index() == 1) {
+		spdlog::info("Simplifying expression at {}", @2.first_line);
 		Num a = std::get<Num>(*std::get<Value*>($1));
 		Num b = std::get<Num>(*std::get<Value*>($3));
 		Num r = b == 0 ? 0 : a % b;

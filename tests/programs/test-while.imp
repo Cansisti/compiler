@@ -1,0 +1,17 @@
+DECLARE
+    n, m, r
+BEGIN
+    r ASSIGN 0;
+    n ASSIGN 1;
+    m ASSIGN 5;
+    WHILE r EQ 0 DO
+        r ASSIGN m MOD n;
+        IF n LE m THEN
+            n ASSIGN n PLUS 1;
+        ENDIF
+        WRITE r;
+        WRITE n;
+        WRITE m;
+        WRITE 1111111111;
+    ENDWHILE
+END
